@@ -656,10 +656,14 @@ export default {
         if (this.$route.query.originId) {
           // this.$router.back(-1)
           let locaArr = JSON.parse(localStorage.getItem("breadArr"))
-          let locaArrLen = locaArr.pop();
-          this.breadcrumb.pop()
-          localStorage.setItem("breadArr",JSON.stringify(locaArr))
-          this.$router.push({path:'/folder/file',query:{"originId":locaArrLen.id,"names":locaArrLen.name}})
+          // locaArr.pop();
+          locaArr.map((item,ind)=>{
+              if(item.id == this.$route.query.originId) {
+                this.$router.push({path:'/folder/file',query:{"originId":locaArr[ind-1].id,"names":locaArr[ind-1].name}})
+              }
+          })
+          // localStorage.setItem("breadArr",JSON.stringify(locaArr))
+          
         } else {
           this.$router.push('/folder/file')
           this.breadcrumb = [];
@@ -670,7 +674,17 @@ export default {
       }
     },
     forwardFn() {
-      history.forward();
+          let locaArr = JSON.parse(localStorage.getItem("breadArr"))
+        if (this.$route.query.originId) {
+          locaArr.map((item,ind)=>{
+              if(item.id == this.$route.query.originId) {
+                this.$router.push({path:'/folder/file',query:{"originId":locaArr[ind+1].id,"names":locaArr[ind+1].name}})
+              }
+          })
+        } else {
+          this.$router.push({path:'/folder/file',query:{"originId":locaArr[1].id,"names":locaArr[1].name}})
+        }
+      // history.forward();
     },
     refreshFn() {
       const loading = this.$loading({
@@ -791,7 +805,7 @@ export default {
         })
     },
     changesFile(ind) { // 权限
-       if(this.heckGroupUserId) {
+      if(this.heckGroupUserId) {
           this.folderArr.push(ind)
             let folderIds,resourceName;
             if(this.shiftArr.length>0) {
@@ -802,7 +816,6 @@ export default {
               resourceName = this.ctrlArr[0].name
             }
             setTimeout(()=>{
-              console.log(this.unique(this.folderArr))
               getAlloAuths({
                 folderAuths:this.unique(this.folderArr),
                 folderId:folderIds,
@@ -1259,9 +1272,9 @@ export default {
          this.$message.warning("首页禁止操作文件夹");
         }
       } else if(fileInd == 7) { // 权限
-          this.drawer = true;
-          $(".file-list").width("62%");
-          this.jurisdictionFn();
+        this.drawer = true;
+        $(".file-list").width("62%");
+        this.jurisdictionFn();
       } else if(fileInd == 8) { // 操作
         this.$router.push({
           path: '/folder/file/record'
@@ -1275,34 +1288,49 @@ export default {
             this.checkList = []
           }
         if(this.shiftArr.length>0 && this.shiftArr.length<2) {
-          getUsers().then((res)=>{
-            if(res.data.code == 200) {
-              this.jurisdData = res.data.data
-              this.jurisdData.map((item)=>{
-                item.disabled = false
-              })
-            } else {
-              this.$message.error(res.data.message);
-            }
-          })
+          if(this.shiftArr[0].dataType == 1) {
+            getUsers().then((res)=>{
+              if(res.data.code == 200) {
+                this.jurisdData = res.data.data
+                this.jurisdData.map((item)=>{
+                  item.disabled = false
+                })
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+          } else {
+            $(".file-list").width("100%");
+            this.drawer = false;
+            this.$message.error('请选择文件夹');
+            $(".file-list-transverse li").removeClass("transverseClass")
+          }
         } else if(this.ctrlArr.length>0 && this.ctrlArr.length<2) {
-          getUsers().then((res)=>{
-            if(res.data.code == 200) {
-              this.jurisdData = res.data.data
-              this.jurisdData.map((item)=>{
-                item.disabled = false
-              })
-            } else {
-              this.$message.error(res.data.message);
-            }
-          })
+          if(this.ctrlArr[0].dataType == 1) {
+            getUsers().then((res)=>{
+              if(res.data.code == 200) {
+                this.jurisdData = res.data.data
+                this.jurisdData.map((item)=>{
+                  item.disabled = false
+                })
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+          } else {
+              $(".el-table__row").removeClass('current-action')
+              $(".file-list").width("100%");
+              this.drawer = false;
+              this.$message.error('请选择文件夹');
+          }
         } else {
           if(this.shiftArr.length>1 || this.ctrlArr.length>1) {
             $(".file-list-transverse li").removeClass("transverseClass")
+            $(".el-table__row").removeClass('current-action')
           }
             $(".file-list").width("100%");
             this.drawer = false;
-          this.$message.error('请选择单个文件或单个文件夹');
+            this.$message.error('请选择单个文件夹');
         }
       }
     },
@@ -1484,7 +1512,7 @@ export default {
         }
       }
        if(this.isshift) { // 按下shift
-           if(eventLi.hasClass("transverseClass")) {
+          if(eventLi.hasClass("transverseClass")) {
             eventLi.nextAll().removeClass("transverseClass");
               this.shiftArr.map((item,ind)=> {
                 if( item.dataId == columns.id ) {
@@ -1557,8 +1585,8 @@ export default {
               return item;
             },[])
           }
-       }else {
-         if(eventLi.find('p span').css("display")!=undefined && eventLi.find('p span').css("display")!=="none") {
+      }else {
+        if(eventLi.find('p span').css("display")!=undefined && eventLi.find('p span').css("display")!=="none") {
           this.shiftArr = [];
           eventLi.addClass("transverseClass").siblings().removeClass("transverseClass");
               this.shiftArr.push({
@@ -1567,9 +1595,9 @@ export default {
                 dataSize:columns.size,
                 name:columns.name
               })
-         }
-       }
-         this.jurisdictionFn()
+        }
+      }
+        this.jurisdictionFn()
     },
     keyevent() { 
         var that = this;
