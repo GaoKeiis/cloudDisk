@@ -31,7 +31,7 @@ axios.interceptors.response.use(function (response) { //
     let clientId = localStorage.getItem('client_id');
     let clientSecret = localStorage.getItem('client_secret');
     postAction(
-      'http://124.70.51.21:9001/api-auth/oauth/token?grant_type=refresh-token&refresh_token='+refreshToken+'&client_id='+clientId+'&client_secret='+clientSecret)
+      'http://192.168.10.48:9001/api-auth/oauth/token?grant_type=refresh-token&refresh_token='+refreshToken+'&client_id='+clientId+'&client_secret='+clientSecret)
     .then((res)=> {
       let token = res.data.data.token_type+' '+ res.data.data.access_token
       Vue.$cookies.set("token",token,"1d","/");

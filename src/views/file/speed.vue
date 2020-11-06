@@ -239,7 +239,7 @@ export default {
       treeAllArr:[],
       objStr:'',
       progressArr:'',
-      loadinges:'',
+      PercentaArr:[],
       speedArr:[
         {
           imgUrl: require('../../assets/upload-icon.svg'),
@@ -345,11 +345,11 @@ export default {
     window.addEventListener("beforeunload", e => {
       this.beforeunloadHandler(e);
   });
-      let PercentaArr=[];
+      this.PercentaArr=[];
     window.eventBus.$on("realProgress",(progress)=>{
         this.Percent+= Math.round((progress.bytesPerPiece/progress.filesize)*100);
-        PercentaArr.push(this.Percent)
-        PercentaArr.sort((a,b)=>{ 
+        this.PercentaArr.push(this.Percent)
+        this.PercentaArr.sort((a,b)=>{ 
           return a.ind-b.ind
         })
         this.downdata.map((item)=>{
@@ -358,16 +358,11 @@ export default {
           }
         })
         $('.downd'+progress.fileId).html('下载中...');
-        for(var i = 0;i<PercentaArr.length;i++) {
-          if(PercentaArr[i]<100) {
-              $('.downdress'+progress.fileId).find('.el-progress-bar__inner').css("width",PercentaArr[i] + '%');
-              $('.downdress'+progress.fileId).find('.el-progress-bar__innerText').html(PercentaArr[i]+ '%');
-          } else {
-
-          this.loadinges = this.$loading({
-              lock: true,
-              text: '下载中，请稍后'
-            });
+            console.log(progress)
+        for(var i = 0;i<this.PercentaArr.length;i++) {
+          if(this.PercentaArr[i]<100) {
+              $('.downdress'+progress.fileId).find('.el-progress-bar__inner').css("width",this.PercentaArr[i] + '%');
+              $('.downdress'+progress.fileId).find('.el-progress-bar__innerText').html(this.PercentaArr[i]+ '%');
           }
         }
         this.progressArr = ""
@@ -387,7 +382,6 @@ export default {
           obj.fileId = item.id
         }
       })
-      console.log(allFileArr,BlobArr)
       this.PercentIntFn(obj.name,obj.fileDownloadId,obj.fileId,BlobArr)
     });
   },
@@ -398,10 +392,10 @@ export default {
   },
   methods: {
     downloadfolderFn(data) {
-       getTreeList().then((res) => {
+      getTreeList().then((res) => {
          this.getTreeFn(data,res.data.data)
          this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
-            this.$router.push({
+            this.$router.replace({
               path: '/folder/file',
               query:{
                 originId: data.folderId,
@@ -424,7 +418,7 @@ export default {
        getTreeList().then((res) => {
          this.getTreeFn(data,res.data.data)
          this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
-            this.$router.push({
+            this.$router.replace({
               path: '/folder/file',
               query:{
                 originId: data.folderId,
@@ -511,6 +505,8 @@ export default {
       getDownloadList().then((res)=>{
         this.downdata = res.data.data;
         this.downloadObjectdata = res.data.data;
+              this.Percent = 0;
+              this.PercentaArr = []
       })
     },
     PercentIntFn(names,fileDownloadId,fileId,BlobArr) {
@@ -518,13 +514,7 @@ export default {
           $('.downBtn'+fileId).find(".downloadresumeClass").css('visibility','hidden');
           $('.downBtn'+fileId).find(".downloadstopClass").css('visibility','hidden');
             getDownloadEnd({fileDownloadId:fileDownloadId,resourceName:names}).then(()=>{
-              this.Percent=100;
-              $('.downdress'+fileId).find('.el-progress-bar__inner').css("background","rgb(52, 208, 182)");
-              $('.downdress'+fileId).find('.el-progress-bar__inner').css("width",this.Percent + '%');
-              $('.downdress'+fileId).find('.el-progress-bar__innerText').html(this.Percent + '%');
-               this.$message.success('下载成功');
-              $('.downd'+fileId).html('下载完成');
-              this.loadinges.close();
+              console.log(fileId)
               this.downdfileFn()
             })
             let link = document.createElement('a')
@@ -546,9 +536,16 @@ export default {
             document.body.appendChild(link)
             link.click()
             setTimeout(()=>{
+              $('.downdress'+fileId).find('.el-progress-bar__inner').css("background","rgb(52, 208, 182)");
+              $('.downdress'+fileId).find('.el-progress-bar__inner').css("width",'100%');
+              $('.downdress'+fileId).find('.el-progress-bar__innerText').html('100%');
+              this.$message.success('下载成功');
+              $('.downd'+fileId).html('下载完成');
+              this.Percent = 0;
+              this.PercentaArr = []
               document.body.removeChild(link); //下载完成移除元素
               window.URL.revokeObjectURL(url); //释放掉blob对象
-            },500)
+            },300)
     },
     getPercent(num, total){
       num = parseFloat(num);
@@ -611,6 +608,27 @@ export default {
         }
         return "您是否确认离开此页面";
       }
+      if(this.downdata.length>0) {
+        this.downdata.map((item)=>{
+          if(!item.isOver) {
+            let deleteStr = {
+              fileDownloadId: item.id
+            }
+            getDownloadDelete(deleteStr).then((res) => {
+              if(res.data.code == 200) {
+                this.downdfileFn()
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+          }
+        })
+        e = e || window.event;
+        if (e) {
+          e.returnValue = "您是否确认离开此页面";
+        }
+        return "您是否确认离开此页面";
+      }
     },
     downloadOper(ind) {
       // let that = this
@@ -663,9 +681,26 @@ export default {
     wholeOper(ind) {
       let that = this
       if(ind == 0) {
-        this.uploader.stop(true);
-          $(".resumeClass").removeClass("resNone")
-          $(".stopClass").addClass("resNone")
+          if($(".speed-right-btn").find('p').eq(ind).text() == "全部暂停"){
+            $(".speed-right-btn").find('p').eq(ind).html("全部开始")
+            $(".resumeClass").removeClass("resNone")
+            $(".stopClass").addClass("resNone")
+            if(this.ProgfileArr.length>0) {
+              this.ProgfileArr.map((item)=>{
+                this.uploader.stop(item);
+              })
+            }
+          } else {
+            if(this.ProgfileArr.length>0) {
+              this.ProgfileArr.map((item)=>{
+                this.uploader.upload(item);
+              })
+            }
+            $(".resumeClass").addClass("resNone")
+            $(".stopClass").removeClass("resNone")
+            $(".speed-right-btn").find('p').eq(ind).html("全部暂停")
+          }
+          
       } else {
         this.$confirm('是否将正在上传的全部文件删除?', {
             confirmButtonText: '确定',
@@ -689,9 +724,7 @@ export default {
                 }else{
                   that.$message.error(res.data.message);
                 }
-              }).catch((err) => {
-                  that.$message.error(err.data.message);
-              });
+              })
             })
           })
       }
@@ -767,17 +800,20 @@ export default {
     uploadList() {
       getuploadList().then((res) => {
           if(res.data.code == 200) {
-          if(res.data.data){
-            this.data = res.data.data
-            this.Objectdata = res.data.data
-              res.data.data.map((item)=>{
-                  if(!item.isOver) {
-                    this.uploadSelect(item.id)
-                  }
-            })
-          }
+            if(res.data.data){
+              this.data = res.data.data
+              this.Objectdata = res.data.data
+                res.data.data.map((item)=>{
+                    if(!item.isOver) {
+                      this.uploadSelect(item.id)
+                    }
+              })
+            } else {
+              this.data = []
+              this.Objectdata = []
+            }
           } else {
-             this.$message.error(res.data.message);
+            this.$message.error(res.data.message);
           }
       })
     },
@@ -799,7 +835,6 @@ export default {
         } else {
           this.$message.error(res.data.message);
         }
-       
       })
     },
     fileChange(file,fileIds) {
@@ -810,8 +845,16 @@ export default {
         this.ProgfileIdArr = fileIds;
         this.ProgfileArr.push(file)
         setTimeout(()=>{
-          $(".resumeClass").addClass("resNone");
-          $(".stopClass").removeClass("resNone");
+          this.ProgressfileIds.map((item)=>{
+            $('.progress'+item).find(".resumeClass").addClass("resNone");
+            $('.progress'+item).find(".stopClass").removeClass("resNone");
+          })
+          
+        this.data.map((item)=>{
+          if(item.name ==  file.name) {
+            item.file = file
+          }
+        })
         },200)
     },
     curentTime() {
@@ -845,21 +888,23 @@ export default {
         return clock;
     },
     onProgress(file, percent) {
-      this.ProgressfileIds.map((item)=>{
-        $('.progress'+item).find('.el-progress-bar__inner').css("width",Math.floor(percent*100)+'%')
-        $('.progress'+item).find('.el-progress-bar__innerText').text(Math.floor(percent*100)+'%')
-          $('.down'+ item).html("上传中")
-        if(Math.floor(percent*100)+'%' == '100%') {
-          $('.progress'+item).find('.el-progress-bar__inner').css("width",'100%')
-          $('.progress'+item).find('.el-progress-bar__inner').css('background-color','#34D0B6')
-        } else if(Math.floor(percent*100)+'%' == '0%') {
-          $('.down'+ item).html("等待中...")
-        }
-      })
+      this.data.map((item)=>{
+          if(item.name ==  file.name) {
+          $('.progress'+item.id).find('.el-progress-bar__inner').css("width",Math.floor(percent*100)+'%')
+          $('.progress'+item.id).find('.el-progress-bar__innerText').text(Math.floor(percent*100)+'%')
+            $('.down'+ item.id).html("上传中")
+          if(Math.floor(percent*100)+'%' == '100%') {
+            $('.progress'+item.id).find('.el-progress-bar__inner').css("width",'100%')
+            $('.progress'+item.id).find('.el-progress-bar__inner').css('background-color','#34D0B6')
+          } else if(Math.floor(percent*100)+'%' == '0%') {
+            $('.down'+ item.id).html("等待中...")
+          }
+          }
+        })
     },
     onSuccess (fileIds) {
         fileIds.map((item)=>{
-           let data={
+          let data={
               fileId:item
           }
       const loading = this.$loading({
@@ -885,25 +930,31 @@ export default {
       })
     },
     onUploadError(file) {
+      // 取消并中断文件上传
+      this.uploader.cancelFile(file);
+      // 在队列中移除文件
+      this.uploader.removeFile(file, true);
+      this.uploader.reset()
       this.$message.error('上传失败，请重新上传');
       $('.down'+file.id).html("上传失败")
     },
-    resume() {
+    resume(data) {
       if(this.Progressfile) {
-        this.uploader.upload(this.Progressfile);
-        $(".resumeClass").addClass("resNone")
-        $(".stopClass").removeClass("resNone")
+        this.uploader.upload(data.file);
+        $('.funBtn'+data.id).find(".resumeClass").addClass("resNone")
+        $('.funBtn'+data.id).find(".stopClass").removeClass("resNone")
       } else {
-         this.$message.error('上传失败，请重新上传');
+        this.$message.error('上传失败，请重新上传');
       }
     },
-    stop() {
+    stop(data) {
       if(this.Progressfile) {
-        this.uploader.stop(this.Progressfile);
-        $(".resumeClass").removeClass("resNone")
-        $(".stopClass").addClass("resNone")
+        console.log(data.file,this.uploader.getFile(data.file.id))
+        this.uploader.stop(data.file);
+        $('.funBtn'+data.id).find(".resumeClass").removeClass("resNone")
+        $('.funBtn'+data.id).find(".stopClass").addClass("resNone")
       } else {
-         this.$message.error('上传失败，请重新上传');
+        this.$message.error('上传失败，请重新上传');
       }
     },
     remove(file) {
@@ -915,11 +966,15 @@ export default {
           let deleteStr = {
             fileId: file.id
           }
-          if(this.Progressfile) {
-            // 取消并中断文件上传
-            this.uploader.cancelFile(this.Progressfile);
-            // 在队列中移除文件
-            this.uploader.removeFile(this.Progressfile, true);
+          if(this.ProgfileArr.length>0) {
+            this.ProgfileArr.map((item)=>{
+              if(item.name == file.name) {
+                // 取消并中断文件上传
+                this.uploader.cancelFile(item);
+                // 在队列中移除文件
+                this.uploader.removeFile(item, true);
+              }
+            })
           }
           getuploadDelete(deleteStr).then((res) => {
             if(res.data.code == 200) {

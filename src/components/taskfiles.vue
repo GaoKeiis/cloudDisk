@@ -216,7 +216,7 @@ export default {
       if(this.folderName) { // 修改文件夹名称
         folderName = this.folderName;
         let newlyStr = {
-          pFolder: this.breadcrumb[this.breadcrumb.length-1].id,
+          pFolderId: this.breadcrumb[this.breadcrumb.length-1].id,
           folderName: folderName,
           resourceName: folderName,
         }

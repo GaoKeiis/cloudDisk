@@ -4,7 +4,7 @@
       <div class="head—title">
           <router-link to="/">
           <i class="el-icon-arrow-left"></i>
-          小土天空
+          {{ headTitle }}
         </router-link>
           <i class="el-icon-setting"></i>
       </div>
@@ -20,18 +20,34 @@
         <img src="../../assets/voice-icon.png">
         <img src="../../assets/remind.png">
         <img src="../../assets/LeavingMessage.png">
-        <el-avatar :size="26" :src="require('@/assets/user.jpeg')"></el-avatar>
-        张三
+        <div class="userbigImgUrl" v-if="userSele.bigImgUrl">
+          <img v-if="userSele.sex == 1" :src="userSele.bigImgUrl" style="border:1px solid #00A8FF;border-radius: 100%;">
+          <img v-else-if="userSele.sex == 2" :src="userSele.bigImgUrl" style="border:1px solid #FF0066;border-radius: 100%;">
+          <img v-else :src="userSele.bigImgUrl">
+          {{ userSele.realName }}
+        </div>
+        <div class="userbigImgUrl" v-else>
+          <img v-if="userSele.sex == 1" src="../../assets/person-icon.png" style="border:1px solid #00A8FF;border-radius: 100%;">
+          <img v-else-if="userSele.sex == 2" src="../../assets/person-icon.png" style="border:1px solid #FF0066;border-radius: 100%;">
+          <img v-else src="../../assets/person-icon.png">
+          {{ userSele.realName }}
+        </div>
     </div>
     
   </div>
 </template>
 
 <script>
+  import {
+  //  eslint-disable-next-line
+  getUserSelect
+} from '@/apis/api'
 export default {
-   data() {
+  data() {
       return {
-        activeName: 'file'
+        activeName: 'file',
+        userSele: '',
+        headTitle: '',
       };
     },
     watch: {
@@ -42,7 +58,7 @@ export default {
     '$route' (to) {
       if(to.path == "/folder/speed" || to.path == "/folder/1") {
         this.activeName = 'file'
-      } else if(to.path == "/folder/2" || to.path == "/folder/4") {
+      } else if(to.path == "/folder/2" || to.path == "/folder/4" || to.path == "/folder/5") {
         this.activeName = '2'
       } else if(to.path == "/folder/3") {
         this.activeName = '3'
@@ -57,7 +73,20 @@ export default {
       } else if(this.$route.path == "/folder/3") {
         this.activeName = '3'
       }
+      this.getUserSelectFn()
+      this.headTitle = localStorage.getItem('headTitle');
   },
+  methods: {
+    getUserSelectFn() {
+      getUserSelect().then((res)=>{
+        if(res.data.code == 200) {
+          this.userSele = res.data.data
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    }
+  }
 }
 </script>
 <style>
@@ -117,12 +146,6 @@ export default {
       padding-bottom: 2px;
     }
   }
-    .el-avatar {
-      margin-left: auto;
-      cursor: pointer;
-      border: 1px solid #00A8FF;
-      margin-right: 6px;
-    }
     .head-right{
       display: flex;
       align-items: center;
@@ -137,6 +160,17 @@ export default {
           height: 20px;
         }
       }
+
+    .userbigImgUrl {
+      display: flex;
+      align-items: center;
+      img{
+        height: 24px;
+        width: 24px;
+        margin-right: 10px;
+        border-radius: 100%;
+      }
+    }
       i{
         font-size: 20px;
         color: #2c2c2c;

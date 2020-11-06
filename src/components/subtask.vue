@@ -447,7 +447,6 @@ export default {
     },
     openterChange() {
       let str;
-      console.log(this.handleStr)
         getCreateTaskFolder({name: this.opensearch,pFolderId:this.handleStr.folderId}).then((res)=>{
           if(res.data.code == 200) {
             str = {
@@ -460,32 +459,6 @@ export default {
             this.$message.error(res.data.message);
           }
         })
-      // if(this.$refs.taskTree.getCurrentNode()) {
-      //   getCreateTaskFolder({name: this.opensearch,pFolderId:this.$refs.taskTree.getCurrentNode().folderId}).then((res)=>{
-      //     if(res.data.code == 200) {
-      //       str = {
-      //         name: this.opensearch,
-      //         pid: this.$refs.taskTree.getCurrentNode().id,
-      //         folderId: res.data.data.folderId
-      //       }
-      //       this.getTaskCreateFn(str)
-      //     }
-      //   })
-      // } else {
-      //   getSelectFolderId({businessType: 1}).then((res)=>{
-      //     if(res.data.code == 200) {
-      //       getCreateTaskFolder({name: this.opensearch,pFolderId: res.data.data.folderId}).then((resq)=>{
-      //         if(res.data.code == 200) {
-      //               str = {
-      //                 name: this.opensearch,
-      //                 folderId: resq.data.data.folderId,
-      //               }
-      //           this.getTaskCreateFn(str)
-      //         }
-      //       })
-      //     }
-      //   })
-      // }
     },
     getTaskCreateFn(str) {
       getTaskCreate(str).then((res)=> {

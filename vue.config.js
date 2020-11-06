@@ -52,7 +52,7 @@ module.exports = {
     port: 3000,
     proxy: {
       '/resource': {
-        target: 'http://124.70.51.21:9201',
+        target: 'http://192.168.10.48:9201',
         ws: false,
         changeOrigin: true
       }

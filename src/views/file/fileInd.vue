@@ -248,7 +248,7 @@
               v-model="jurisfilterText">
             </el-input>
             <el-tree
-            :expand-on-click-node="false"
+              :expand-on-click-node="false"
               :data="jurisdData"
               :props="jurisdProps"
               show-checkbox
@@ -549,7 +549,7 @@ export default {
     treefolderChange() {
       if(this.treefolderName!='新建文件夹') {
         let newlyStr = {
-          pFolder: this.moveselection.id,
+          pFolderId: this.moveselection.id,
           folderName: this.treefolderName,
           resourceName: this.treefolderName,
         }
@@ -574,7 +574,7 @@ export default {
     copyfolderChange() {
       if(this.copyfolderName!='新建文件夹') {
         let newlyStr = {
-          pFolder: this.copyselection.id,
+          pFolderId: this.copyselection.id,
           folderName: this.copyfolderName,
           resourceName: this.copyfolderName,
         }
@@ -610,7 +610,7 @@ export default {
               if(res.data.code == 200) {
                 if(res.data.data) {
                   this.checkList = res.data.data;
-                 this.checkList.map((item,ind)=>{
+                  this.checkList.map((item,ind)=>{
                     if(item == 0) {
                       this.checkList[ind] = "查看文件"
                     } else if(item == 1) {
@@ -628,6 +628,13 @@ export default {
                 } else {
                   this.checkList = []
                 }
+              } else if(res.data.code == 777) {
+                b.checkedKeys = []
+                this.heckGroupUserId = ''
+                this.checkList = []
+                a.disabled = true
+                this.$refs.juristree.setCheckedKeys([]);
+                this.$message.error('无权限设置该成员权限');
               } else {
                 this.$message.error(res.data.message);
               }
@@ -647,8 +654,12 @@ export default {
     },
     BackOff() {
         if (this.$route.query.originId) {
-          this.$router.back(-1)
+          // this.$router.back(-1)
+          let locaArr = JSON.parse(localStorage.getItem("breadArr"))
+          let locaArrLen = locaArr.pop();
           this.breadcrumb.pop()
+          localStorage.setItem("breadArr",JSON.stringify(locaArr))
+          this.$router.push({path:'/folder/file',query:{"originId":locaArrLen.id,"names":locaArrLen.name}})
         } else {
           this.$router.push('/folder/file')
           this.breadcrumb = [];
@@ -762,25 +773,22 @@ export default {
             res.data.data.map((item)=>{
               item.resourceName = item.name
             })
-             this.filist = res.data.data;
+            this.filist = res.data.data;
             $(".file-list-transverse").find('li').map((ind,item)=>{
               $(item).removeClass('transverseClass')
             })
+            $(".el-table__row").map((ind,item)=>{
+              $(item).removeClass('current-action')
+            })
           } else if(res.data.code == 777) {
             this.$message.error("无权限查看该文件，请通知管理员");
-            this.$router.push({path:'/folder/file'})
-            this.breadcrumb = [];
-            this.breadcrumb.push({
-              id:'',
-              name:'首页'
-            })
+            this.breadcrumb.splice(this.breadcrumb.length-1, this.breadcrumb.length)
+            this.$router.push({path:'/folder/file',query:{'originId':this.breadcrumb[this.breadcrumb.length-1].id,"names":this.breadcrumb[this.breadcrumb.length-1].name}})
             localStorage.setItem("breadArr",JSON.stringify(this.breadcrumb))
           } else {
             this.$message.error(res.data.message);
           }
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+        })
     },
     changesFile(ind) { // 权限
        if(this.heckGroupUserId) {
@@ -1089,7 +1097,7 @@ export default {
         folderName = "新建文件夹"
       }
         let newlyStr = {
-          pFolder: this.$route.query.originId,
+          pFolderId: this.$route.query.originId,
           folderName: folderName,
           resourceName: folderName,
         }
@@ -1124,16 +1132,28 @@ export default {
       }
       } else if(fileInd == 1) { // 移动
         if(this.$route.query.originId) {
-          this.getTreeListFn();
-          this.visible = true
+          if(this.shiftArr.length>0 || this.ctrlArr.length>0) {
+            this.visible = true
+            this.getTreeListFn();
+          } else {
+            this.visible = false;
+            this.$message.error('请选择文件或文件夹');
+          }
         } else {
+          this.visible = false;
           this.$message.warning("首页禁止操作文件夹");
         }
       } else if(fileInd == 2) { // 复制
         if(this.$route.query.originId) {
-          this.getTreeListFn();
-          this.copyvisible = true
+          if(this.shiftArr.length>0 || this.ctrlArr.length>0) {
+            this.copyvisible = true
+            this.getTreeListFn();
+          } else {
+            this.copyvisible = false;
+            this.$message.error('请选择文件或文件夹');
+          }
         } else {
+          this.copyvisible = false;
           this.$message.warning("首页禁止操作文件夹");
         }
       } else if(fileInd == 3) { // 删除
@@ -1235,11 +1255,6 @@ export default {
       } else if(fileInd == 6) { // 下载
         if(this.$route.query.originId) {
           this.downloadFn();
-          this.$notify({
-            title: '成功',
-            message: '请前往进度页面，查看下载进度',
-            type: 'success'
-          });
         } else {
          this.$message.warning("首页禁止操作文件夹");
         }
@@ -1263,6 +1278,9 @@ export default {
           getUsers().then((res)=>{
             if(res.data.code == 200) {
               this.jurisdData = res.data.data
+              this.jurisdData.map((item)=>{
+                item.disabled = false
+              })
             } else {
               this.$message.error(res.data.message);
             }
@@ -1271,6 +1289,9 @@ export default {
           getUsers().then((res)=>{
             if(res.data.code == 200) {
               this.jurisdData = res.data.data
+              this.jurisdData.map((item)=>{
+                item.disabled = false
+              })
             } else {
               this.$message.error(res.data.message);
             }
@@ -1309,6 +1330,7 @@ export default {
           filesizeArr.map((filistitem) => {
             getDownloadStart({fileId:filistitem.dataId,resourceName:filistitem.name}).then((res)=>{
               filistitem.fileDownloadId = res.data.data.fileDownloadId;
+              that.$message.success('请前往进度页面，查看下载进度')
             })
           })
           let newobj = {};
@@ -1653,7 +1675,7 @@ export default {
             },[])
           }
         } else {
-         if($(event.srcElement).find('p a').css("display")!=undefined && $(event.srcElement).find('p a').css("display")!="none") {
+        if($(event.srcElement).find('p a').css("display")!=undefined && $(event.srcElement).find('p a').css("display")!="none") {
           this.ctrlArr = [];
           $(event.srcElement).parents('.el-table__row').addClass("current-action").siblings().removeClass("current-action")
           this.ctrlArr.push({
@@ -1662,9 +1684,9 @@ export default {
               dataSize:row.size,
               name:row.name
             })
-         }
+          }
         }
-         this.jurisdictionFn()
+        this.jurisdictionFn()
       },100)
     },
     dateFormatter(row) {
@@ -1689,12 +1711,11 @@ export default {
     transverseFn (row){ // 双击
         if(row.type == 1) {
           this.homeId = row.id
-          this.$router.push({path:'/folder/file',query:{'originId': row.id,'names':row.name}})
           this.breadcrumb.push({
             id:row.id,
             name:row.name
           })
-          this.getHomeListFn(row.id)
+          this.$router.push({path:'/folder/file',query:{'originId': row.id,'names':row.name}})
           let obj = {};
           this.breadcrumb = this.breadcrumb.reduce((cur,next) => {
               obj[next.id] ? "" : obj[next.id] = true && cur.push(next);
@@ -1703,7 +1724,7 @@ export default {
           localStorage.setItem("breadArr",JSON.stringify(this.breadcrumb))
         } else {
           getPreview({fileId:row.id}).then((res)=>{
-               var blob = new Blob([res.data], {
+              var blob = new Blob([res.data], {
                 type: 'application/pdf;chartset=UTF-8'
               })
               let fileURL= URL.createObjectURL(blob)
@@ -1712,7 +1733,7 @@ export default {
         }
     },
     imgFn(ind) {
-     let imgInd = $(".foot-right").find('img').eq(ind).siblings().index();
+      let imgInd = $(".foot-right").find('img').eq(ind).siblings().index();
       $(".foot-right").find('img').eq(ind).attr('src',this.urlImgselect[ind]).siblings().attr('src',this.urlImg[imgInd]);
       this.ctrlArr = [];
       this.shiftArr = [];
@@ -1738,7 +1759,7 @@ export default {
       return arr.filter((arr) => !res.has(arr) && res.set(arr, 1))
     },
     mergeFn(originId) {
-    if(originId) {
+      if(originId) {
         this.getHomeListFn(originId)
         if(localStorage.getItem("breadArr")) {
           let locaArr = JSON.parse(localStorage.getItem("breadArr"));

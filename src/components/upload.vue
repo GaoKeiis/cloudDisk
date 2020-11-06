@@ -81,7 +81,7 @@ export default {
             // let token = Vue.$cookies.get('token')
             this.uploader = WebUploader.create({
                 auto: false, // 选完文件后，是否自动上传
-                server:'/resource/bigfile/upload/do',  // 文件接收服务端
+                server:'http://192.168.10.48:9201/resource/bigfile/upload/do',  // 文件接收服务端
                 pick: {
                     id: this.uploadButton,     // 选择文件的按钮
                     multiple: "true",   // 是否多文件上传 默认false
@@ -112,24 +112,20 @@ export default {
                         resourceName = this.$route.query.names
                     }
                 if(file.size > 1048000) {
-                       let Fileinitdata = {  
+                    let Fileinitdata = {  
                             fileMd5: that.md5File(file),
                             fileName: file.name,
                             fileSize: file.size,
                             folderId: folderIds *1,
                             resourceName:resourceName
                         };
-                      getFileinit(Fileinitdata).then((res) => {
-                          if(res.data.code == 200) {
+                    getFileinit(Fileinitdata).then((res) => {
+                        if(res.data.code == 200) {
                             that.fileIds.push(res.data.data.fileId)
                             that.uploader.options.formData.fileId =  res.data.data.fileId;
                             that.blockinds = 0
-                            that.$notify({
-                                title: '成功',
-                                message: '请前往进度页面，查看上传进度',
-                                type: 'success'
-                            });
-                          } else {
+                            that.$message.success('请前往进度页面，查看上传进度')
+                        } else {
                             that.$message.error(res.data.message);
                             }
                         }).catch((err) => {
@@ -144,7 +140,7 @@ export default {
                             }
                         })
                 } else {
-                     var formData = new FormData();
+                    var formData = new FormData();
                     formData.append("file",file.source.source);
                     formData.append("folderId", folderIds*1);
                     formData.append("resourceName", resourceName);
