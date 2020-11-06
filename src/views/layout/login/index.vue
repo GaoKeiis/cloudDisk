@@ -14,7 +14,6 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
-            <!-- <el-button @click="resetForm('ruleForm')">重置</el-button> -->
           </el-form-item>
         </el-form>
       </div>
@@ -47,7 +46,7 @@ export default {
   },
   mounted(){
     //绑定事件
-    window.addEventListener('keydown',this.keyDown);
+     window.addEventListener('keydown',this.keyDown);
   },
   methods: {
     keyDown(e){
