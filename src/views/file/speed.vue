@@ -358,7 +358,6 @@ export default {
           }
         })
         $('.downd'+progress.fileId).html('下载中...');
-            console.log(progress)
         for(var i = 0;i<this.PercentaArr.length;i++) {
           if(this.PercentaArr[i]<100) {
               $('.downdress'+progress.fileId).find('.el-progress-bar__inner').css("width",this.PercentaArr[i] + '%');

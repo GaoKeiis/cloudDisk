@@ -834,6 +834,9 @@ export default {
     handleClose(done) { // 权限关闭
       $(".file-list").width("100%");
       $(".file-list-transverse li").removeClass("transverseClass")
+      $(".el-table__row").removeClass('current-action')
+      this.ctrlArr = [];
+      this.shiftArr = [];
       done();
     },
     jurisdfilter(value, data) { // 权限搜索按钮
@@ -1261,7 +1264,24 @@ export default {
         }
       } else if(fileInd == 5) { // 上传
         if(this.$route.query.originId) {
-          $('.webuploader-element-invisible').eq(0).trigger('click');
+          if(this.shiftArr.length>0 && this.shiftArr.length<2) {
+            if(this.shiftArr.dataType == 1) {
+              $('.webuploader-element-invisible').eq(0).trigger('click');
+            } else {
+              this.$message.error('请选择文件夹');
+              $(".file-list-transverse li").removeClass("transverseClass")
+              this.shiftArr = []
+            }
+          } else if(this.ctrlArr.length>0) {
+            if(this.ctrlArr.dataType == 1) {
+              $('.webuploader-element-invisible').eq(0).trigger('click');
+            } else {
+              $(".el-table__row").removeClass('current-action')
+              this.ctrlArr = []
+            }
+          } else {
+            this.$message.error('请选择单个文件夹');
+          }
         }else {
           this.$message.warning("首页禁止操作文件夹");
         }
@@ -1269,7 +1289,7 @@ export default {
         if(this.$route.query.originId) {
           this.downloadFn();
         } else {
-         this.$message.warning("首页禁止操作文件夹");
+          this.$message.warning("首页禁止操作文件夹");
         }
       } else if(fileInd == 7) { // 权限
         this.drawer = true;
@@ -1304,6 +1324,7 @@ export default {
             this.drawer = false;
             this.$message.error('请选择文件夹');
             $(".file-list-transverse li").removeClass("transverseClass")
+            this.shiftArr = []
           }
         } else if(this.ctrlArr.length>0 && this.ctrlArr.length<2) {
           if(this.ctrlArr[0].dataType == 1) {
@@ -1320,6 +1341,7 @@ export default {
           } else {
               $(".el-table__row").removeClass('current-action')
               $(".file-list").width("100%");
+              this.ctrlArr = []
               this.drawer = false;
               this.$message.error('请选择文件夹');
           }
@@ -1327,6 +1349,8 @@ export default {
           if(this.shiftArr.length>1 || this.ctrlArr.length>1) {
             $(".file-list-transverse li").removeClass("transverseClass")
             $(".el-table__row").removeClass('current-action')
+            this.shiftArr = []
+            this.ctrlArr = []
           }
             $(".file-list").width("100%");
             this.drawer = false;
@@ -1356,10 +1380,12 @@ export default {
             })
           })
           filesizeArr.map((filistitem) => {
-            getDownloadStart({fileId:filistitem.dataId,resourceName:filistitem.name}).then((res)=>{
-              filistitem.fileDownloadId = res.data.data.fileDownloadId;
-              that.$message.success('请前往进度页面，查看下载进度')
-            })
+            if(filistitem.dataType == 1) {
+              getDownloadStart({fileId:filistitem.dataId,resourceName:filistitem.name}).then((res)=>{
+                filistitem.fileDownloadId = res.data.data.fileDownloadId;
+                that.$message.success('请前往进度页面，查看下载进度')
+              })
+            }
           })
           let newobj = {};
           filesizeArr = filesizeArr.reduce(function(item,next){
@@ -1768,6 +1794,7 @@ export default {
       this.drawer = false;
       $(".file-list").width("100%");
       $(".file-list-transverse li").removeClass("transverseClass")
+      $(".el-table__row").removeClass('current-action')
       if(ind == 0) {
         this.listTrue = false;
       } else {

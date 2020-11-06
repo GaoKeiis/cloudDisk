@@ -81,7 +81,7 @@ export default {
             // let token = Vue.$cookies.get('token')
             this.uploader = WebUploader.create({
                 auto: false, // 选完文件后，是否自动上传
-                server:'http://192.168.10.48:9201/resource/bigfile/upload/do',  // 文件接收服务端
+                server:'resource/bigfile/upload/do',  // 文件接收服务端
                 pick: {
                     id: this.uploadButton,     // 选择文件的按钮
                     multiple: "true",   // 是否多文件上传 默认false
@@ -101,6 +101,7 @@ export default {
             // 当有文件被添加进队列的时候，添加到页面预览
             this.uploader.on('fileQueued', (file) => {
                     let folderIds,resourceName;
+                    console.log($(".transverseClass"))
                     if($(".transverseClass").attr("data-id")) {
                         folderIds = $(".transverseClass").attr("data-id")
                         resourceName = $(".transverseClass").find('p span').text()

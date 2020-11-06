@@ -47,7 +47,7 @@ export default {
   },
   mounted(){
     //绑定事件
-     window.addEventListener('keydown',this.keyDown);
+    window.addEventListener('keydown',this.keyDown);
   },
   methods: {
     keyDown(e){
