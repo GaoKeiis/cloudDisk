@@ -23,6 +23,7 @@
 
 <script>
 import { postAction } from '../../../apis/file'
+import { getHomeInit } from '../../../apis/api'
 export default {
   name: 'Sign',
   data() {
@@ -62,13 +63,15 @@ export default {
       // http://192.168.10.48 本地
       // http://123.57.102.27:8999 线上
             postAction(
-              `http://123.57.102.27:8999/api-auth/oauth/token?grant_type=password&username=${this.ruleForm.phone}&password=${this.ruleForm.password}&scope=all&client_id=${localStorage.getItem('client_id')}&client_secret=${localStorage.getItem('client_secret')}`
+              `http://192.168.10.48:9001/api-auth/oauth/token?grant_type=password&username=${this.ruleForm.phone}&password=${this.ruleForm.password}&scope=all&client_id=${localStorage.getItem('client_id')}&client_secret=${localStorage.getItem('client_secret')}`
             ).then((res)=> {
               if(res.data.code == 200) {
                 let token = res.data.data.token_type+' '+ res.data.data.access_token
                 this.$cookies.set("token",token,"1d","/");
                 this.$cookies.set("refreshToken",res.data.data.refresh_token,"30d","/");
                 localStorage.setItem('headTitle',res.data.data.ext_2);
+
+                getHomeInit()
                 this.$router.replace({
                   path: '/folder/file'
                 })

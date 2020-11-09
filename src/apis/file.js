@@ -31,9 +31,9 @@ axios.interceptors.response.use(function (response) { //
     let clientId = localStorage.getItem('client_id');
     let clientSecret = localStorage.getItem('client_secret');
       // http://192.168.10.48 本地
-      // http://124.70.51.21 线上
+      // http://123.57.102.27:8999 线上
     postAction(
-      'http://123.57.102.27:8999/api-auth/oauth/token?grant_type=refresh-token&refresh_token='+refreshToken+'&client_id='+clientId+'&client_secret='+clientSecret)
+      'http://192.168.10.48/api-auth/oauth/token?grant_type=refresh-token&refresh_token='+refreshToken+'&client_id='+clientId+'&client_secret='+clientSecret)
     .then((res)=> {
       let token = res.data.data.token_type+' '+ res.data.data.access_token
       Vue.$cookies.set("token",token,"1d","/");

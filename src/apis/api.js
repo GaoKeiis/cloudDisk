@@ -1,9 +1,9 @@
 import { getAction, postAction,postFileAction,downloadFileUrl } from './file'
 // 首页文件
-let ClouDiskUrl = 'http://123.57.102.27:8999/api-fb';
-let ClouDiskApiAuth = 'http://123.57.102.27:8999/api-auth';//  线上
-// let ClouDiskUrl = 'http://192.168.10.48:9001/api-fb'; // 本地
-// let ClouDiskApiAuth = 'http://192.168.10.48:9001/api-auth';
+// let ClouDiskUrl = 'http://123.57.102.27:8999/api-fb';
+// let ClouDiskApiAuth = 'http://123.57.102.27:8999/api-auth';//  线上
+let ClouDiskUrl = 'http://192.168.10.48:9001/api-fb'; // 本地
+let ClouDiskApiAuth = 'http://192.168.10.48:9001/api-auth';
 // 初始化 -> 资源=当前剧组下所有的业务文件夹
 const getHomeInit = (params)=>getAction('/resource/init', params);
 // 所有文件的数量和大小 <- 资源首页

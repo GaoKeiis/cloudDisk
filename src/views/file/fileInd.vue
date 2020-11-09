@@ -284,20 +284,24 @@
             <el-checkbox-group v-model="checkList">
             <ul>
               <li>
-                <el-checkbox label="查看文件" @change="changesFile(0)"></el-checkbox>
+                <el-checkbox label="0" @change="changesFile()">查看文件</el-checkbox>
               </li>
               <li>
-                <el-checkbox label="新建文件夹" @change="changesFile(1)"></el-checkbox>
-                <el-checkbox label="上传文件" @change="changesFile(2)"></el-checkbox>
+                <el-checkbox label="1" @change="changesFile()">新建文件夹</el-checkbox>
+                <el-checkbox label="2" @change="changesFile()">上传文件</el-checkbox>
               </li>
               <li>
-                <el-checkbox label="下载文件" @change="changesFile(3)"></el-checkbox>
+                <el-checkbox label="3" @change="changesFile()">下载文件</el-checkbox>
               </li>
               <li>
-                <el-checkbox label="文件重命名" @change="changesFile(4)"></el-checkbox>
+                <el-checkbox label="4" @change="changesFile()">文件重命名</el-checkbox>
               </li>
               <li>
-                <el-checkbox label="删除文件" @change="changesFile(5)"></el-checkbox>
+                <el-checkbox label="7" @change="changesFile()">删除文件</el-checkbox>
+              </li>
+              <li>
+                <el-checkbox :disabled="moveFile" label="5" @change="changesFile()">移动文件</el-checkbox>
+                <el-checkbox :disabled="copyFile" label="6" @change="changesFile()">复制文件</el-checkbox>
               </li>
             </ul>
             </el-checkbox-group>
@@ -334,7 +338,6 @@ import {
   //  eslint-disable-next-line
   getFolderMove,
   getTreeList,
-  getHomeInit,
   getHomeData,
   getHomeCountFile,
   getCreateData,
@@ -374,6 +377,8 @@ export default {
       copyfilterText:'',
        filterText: '',
        jurisfilterText: '',
+       copyFile:true,
+       moveFile:true,
        deterBtn: true,
        newlyBtn: true,
        copydeterBtn: true,
@@ -539,7 +544,7 @@ export default {
     this.mergeFn(this.$route.query.originId)
     $(".foot-right").find('img').eq(1).attr('src',this.urlImgselect[1]).siblings().attr('src',this.urlImg[0]);
     this.getHomeCountFileFn()
-     window.eventBus.$on("uploadClick",(obj)=>{
+    window.eventBus.$on("uploadClick",(obj)=>{
       if(obj.uploadId == 1){
         this.getHomeListFn(this.$route.query.originId)
       }
@@ -609,30 +614,32 @@ export default {
             getListAuthsOfUser({folderId:folderIds,userIdStr:a.userId}).then((res)=>{
               if(res.data.code == 200) {
                 if(res.data.data) {
-                  this.checkList = res.data.data;
-                  this.checkList.map((item,ind)=>{
-                    if(item == 0) {
-                      this.checkList[ind] = "查看文件"
-                    } else if(item == 1) {
-                      this.checkList[ind] = "新建文件夹"
-                    } else if(item == 2) {
-                      this.checkList[ind] = "上传文件"
-                    } else if(item == 3) {
-                      this.checkList[ind] = "下载文件"
-                    } else if(item == 4) {
-                      this.checkList[ind] = "文件重命名"
-                    } else if(item == 5) {
-                      this.checkList[ind] = "删除文件"
-                    }
+                  res.data.data.map(item=>{
+                    this.checkList.push(''+item+'')
                   })
+                  if(this.checkList.indexOf('2')>0 && this.checkList.indexOf('3')>0 &&this.checkList.indexOf('7')>0 ) {
+                    this.moveFile = false
+                    this.copyFile = false
+                  } else if(this.checkList.indexOf('2')>0 && this.checkList.indexOf('3')>0 ) {
+                    this.moveFile = true
+                    this.copyFile = false
+                  } else {
+                    
+                    this.moveFile =true
+                    this.copyFile = true
+                  }
                 } else {
                   this.checkList = []
+                  this.moveFile = true
+                  this.copyFile = true
                 }
               } else if(res.data.code == 777) {
                 b.checkedKeys = []
                 this.heckGroupUserId = ''
                 this.checkList = []
                 a.disabled = true
+                this.moveFile = true
+                this.copyFile = true
                 this.$refs.juristree.setCheckedKeys([]);
                 this.$message.error('无权限设置该成员权限');
               } else {
@@ -642,6 +649,8 @@ export default {
         } else {
           this.heckGroupUserId = ''
           this.checkList = []
+          this.moveFile = true
+          this.copyFile = true
         }
     },
     GetPercent() {
@@ -743,19 +752,15 @@ export default {
       return suffixUrl
     },
     getHomeDataFn() {
-      getHomeInit().then(() => {
-          getHomeData().then((res) => {
-            if(res.data.code == 200) {
-              this.filist = res.data.data
-            } else {
-              this.$message.error(res.data.message);
-            }
-          }).catch((err) => {
-            this.$message.error(err.data.message);
-          });
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+      getHomeData().then((res) => {
+        if(res.data.code == 200) {
+          this.filist = res.data.data
+        } else {
+          this.$message.error(res.data.message);
+        }
+      }).catch((err) => {
+        this.$message.error(err.data.message);
+      });
     },
     getHomeCountFileFn() {
         getHomeCountFile().then((res) => {
@@ -804,9 +809,29 @@ export default {
           }
         })
     },
-    changesFile(ind) { // 权限
+    changesFile() { // 权限
       if(this.heckGroupUserId) {
-          this.folderArr.push(ind)
+          // 0-查看文件 ；1-新建文件夹；2-上传文件；3-下载文件；4-重命名文件；5-移动文件；6-复制文件；7-删除文件
+          
+          if(this.checkList.indexOf('2')>0 && this.checkList.indexOf('3')>0 &&this.checkList.indexOf('7')>0 ) {
+            this.moveFile = false
+            this.copyFile = false
+          } else if(this.checkList.indexOf('2')>0 && this.checkList.indexOf('3')>0 ) {
+            if(this.checkList.indexOf('5')>0) {
+              this.checkList.splice(this.checkList.indexOf('5'),1);
+            }
+            this.moveFile = true
+            this.copyFile = false
+          } else {
+            this.moveFile = true
+            this.copyFile = true
+            if(this.checkList.indexOf('5')>0) {
+              this.checkList.splice(this.checkList.indexOf('5'),1);
+            }
+            if(this.checkList.indexOf('6')>0) {
+              this.checkList.splice(this.checkList.indexOf('6'),1);
+            }
+          }
             let folderIds,resourceName;
             if(this.shiftArr.length>0) {
               folderIds = this.shiftArr[0].dataId
@@ -815,9 +840,10 @@ export default {
               folderIds = this.ctrlArr[0].dataId
               resourceName = this.ctrlArr[0].name
             }
+            
             setTimeout(()=>{
               getAlloAuths({
-                folderAuths:this.unique(this.folderArr),
+                folderAuths:this.unique(this.checkList),
                 folderId:folderIds,
                 userIdStr:this.heckGroupUserId,
                 resourceName: resourceName
@@ -827,8 +853,9 @@ export default {
             },1000)
         } else {
           this.$message.error("请选择成员");
-          this.folderArr = []
           this.checkList = []
+          this.moveFile = true
+          this.copyFile = true
         }
     },
     handleClose(done) { // 权限关闭
@@ -1265,22 +1292,23 @@ export default {
       } else if(fileInd == 5) { // 上传
         if(this.$route.query.originId) {
           if(this.shiftArr.length>0 && this.shiftArr.length<2) {
-            if(this.shiftArr.dataType == 1) {
+            if(this.shiftArr[0].dataType == 1) {
               $('.webuploader-element-invisible').eq(0).trigger('click');
             } else {
               this.$message.error('请选择文件夹');
               $(".file-list-transverse li").removeClass("transverseClass")
               this.shiftArr = []
             }
-          } else if(this.ctrlArr.length>0) {
-            if(this.ctrlArr.dataType == 1) {
+          } else if(this.ctrlArr.length>0 && this.ctrlArr.length<2) {
+            if(this.ctrlArr[0].dataType == 1) {
               $('.webuploader-element-invisible').eq(0).trigger('click');
             } else {
+              this.$message.error('请选择文件夹');
               $(".el-table__row").removeClass('current-action')
               this.ctrlArr = []
             }
           } else {
-            this.$message.error('请选择单个文件夹');
+              $('.webuploader-element-invisible').eq(0).trigger('click');
           }
         }else {
           this.$message.warning("首页禁止操作文件夹");
@@ -1373,14 +1401,18 @@ export default {
             return;
           }
           that.filist.filter((item) => {
-            filesizeArr.map((filistitem) => {
-              if(item.id == filistitem.dataId) {
-                filistitem.filePath = item.path
-              }
-            })
+            if(item.type !== 1) {
+              filesizeArr.map((filistitem) => {
+                if(item.id == filistitem.dataId) {
+                  filistitem.filePath = item.path
+                }
+              })
+            } else {
+              this.$message.warning('所选文件包括文件夹，只下载文件');
+            }
           })
           filesizeArr.map((filistitem) => {
-            if(filistitem.dataType == 1) {
+            if(filistitem.dataType !== 1) {
               getDownloadStart({fileId:filistitem.dataId,resourceName:filistitem.name}).then((res)=>{
                 filistitem.fileDownloadId = res.data.data.fileDownloadId;
                 that.$message.success('请前往进度页面，查看下载进度')
@@ -1393,136 +1425,138 @@ export default {
             return item;
           },[])
           filesizeArr.map((item)=>{
-            if(item.dataSize > 2048000) {
-                let allFileData = [];
-                var bytesPerPiece = 2048000;
-                let totalPieces = Math.ceil(item.dataSize / bytesPerPiece);
-        //      window.eventBus.$on("startProgress",(progress)=>{
-        //         let allFileData = progress.progressArr.allFileData.sort((a,b)=>{ 
-        //           return a.ind-b.ind
-        //         });
-        //         let totalPieces = progress.progressArr.totalPieces;
-        //         for(var i = progress.progressArr.total;i<totalPieces;i++) {
-        //             let bytesStas=bytesPerPiece * i;
-        //             let bytesEnd = progress.progressArr.bytesEnd + bytesStas
-        //             if(bytesEnd >= progress.progressAr/r.filesize
-        //             }
-        // //  eslint-disable-next-line
-        //             let j = i
-        // //  eslint-disable-next-line
-        //             axios({
-        //                 url: '/resource/bigfile/download/do',
-        //                 params: {filePath :item.filePath},
-        //                 method:'get',
-        //                 headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
-        //                 responseType: 'blob',
-        //                 cancelToken: window.source.token
-        //               }).then((res)=>{
-        //               allFileData.push({
-        //                 data:res.data,
-        //                 ind:j
-        //               })
-        //               let obj = {};
-        //               let allFileArr = allFileData.reduce((cur,next) => {
-        //                   obj[next.ind] ? "" : obj[next.ind] = true && cur.push(next);
-        //                   return cur;
-        //               },[])
-        //               window.eventBus.$emit("realProgress",{
-        //                 totalPieces:totalPieces,
-        //                 filesize:item.filesize,
-        //                 fileId:item.dataId,
-        //                 total:j,
-        //                 bytesStas:bytesStas,
-        //                 bytesEnd:bytesEnd,
-        //                 allFileData:allFileArr,
-        //                 name: item.name
-        //               });
-        //               if(allFileArr.length == totalPieces) {
-        //                 window.eventBus.$emit("decreased", {
-        //                     totalPieces:totalPieces,
-        //                     bytesPerPiece:bytesPerPiece,
-        //                     filesize:item.filesize,
-        //                     allFileData:allFileArr,
-        //                     fileDownloadId:item.fileDownloadId,
-        //                     fileId: item.dataId,
-        //                     name:item.name
-        //                 });
-        //                 setTimeout(function(){
-        //                   that.downIstrue =true
-        //                 },500)
-        //               }
-        //             })
-        //         }
-              
-        //       });
-        //  eslint-disable-next-line
-              for(var i = 0;i<totalPieces;i++) {
-                  let bytesStas=bytesPerPiece * i;
-                  let bytesEnd = bytesPerPiece + bytesStas
-                  if(bytesEnd >= item.dataSize){ 
-                      bytesEnd = item.dataSize
-                  }
-                  let j = i
-                  allFileData = [];
-                 axios({
-                      url: '/resource/bigfile/download/do',
-                      params: {filePath :item.filePath},
-                      method:'get',
-                      headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
-                      responseType: 'blob',
-                      // cancelToken: window.source.token
-                    //  cancelToken: new CancelToken(function executor(c){
-                    //     window.cancels.tokens = c
-                    //   })
-                    }).then((res)=>{
-                    allFileData.push({
-                      data:res.data,
-                      ind:j
-                    })
-                      window.eventBus.$emit("realProgress",{
-                        totalPieces:totalPieces,
-                        filesize:item.dataSize,
-                        bytesPerPiece:bytesPerPiece,
-                        fileId:item.dataId,
-                        total:j,
-                        bytesStas:bytesStas,
-                        bytesEnd:bytesEnd,
-                        allFileData:allFileData,
-                        name:item.name
-                      });
-                    if(allFileData.length == totalPieces) {
-                      window.eventBus.$emit("decreased", {
+            if(item.dataType !== 1) {
+              if(item.dataSize > 2048000) {
+                  let allFileData = [];
+                  var bytesPerPiece = 2048000;
+                  let totalPieces = Math.ceil(item.dataSize / bytesPerPiece);
+          //      window.eventBus.$on("startProgress",(progress)=>{
+          //         let allFileData = progress.progressArr.allFileData.sort((a,b)=>{ 
+          //           return a.ind-b.ind
+          //         });
+          //         let totalPieces = progress.progressArr.totalPieces;
+          //         for(var i = progress.progressArr.total;i<totalPieces;i++) {
+          //             let bytesStas=bytesPerPiece * i;
+          //             let bytesEnd = progress.progressArr.bytesEnd + bytesStas
+          //             if(bytesEnd >= progress.progressAr/r.filesize
+          //             }
+          // //  eslint-disable-next-line
+          //             let j = i
+          // //  eslint-disable-next-line
+          //             axios({
+          //                 url: '/resource/bigfile/download/do',
+          //                 params: {filePath :item.filePath},
+          //                 method:'get',
+          //                 headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
+          //                 responseType: 'blob',
+          //                 cancelToken: window.source.token
+          //               }).then((res)=>{
+          //               allFileData.push({
+          //                 data:res.data,
+          //                 ind:j
+          //               })
+          //               let obj = {};
+          //               let allFileArr = allFileData.reduce((cur,next) => {
+          //                   obj[next.ind] ? "" : obj[next.ind] = true && cur.push(next);
+          //                   return cur;
+          //               },[])
+          //               window.eventBus.$emit("realProgress",{
+          //                 totalPieces:totalPieces,
+          //                 filesize:item.filesize,
+          //                 fileId:item.dataId,
+          //                 total:j,
+          //                 bytesStas:bytesStas,
+          //                 bytesEnd:bytesEnd,
+          //                 allFileData:allFileArr,
+          //                 name: item.name
+          //               });
+          //               if(allFileArr.length == totalPieces) {
+          //                 window.eventBus.$emit("decreased", {
+          //                     totalPieces:totalPieces,
+          //                     bytesPerPiece:bytesPerPiece,
+          //                     filesize:item.filesize,
+          //                     allFileData:allFileArr,
+          //                     fileDownloadId:item.fileDownloadId,
+          //                     fileId: item.dataId,
+          //                     name:item.name
+          //                 });
+          //                 setTimeout(function(){
+          //                   that.downIstrue =true
+          //                 },500)
+          //               }
+          //             })
+          //         }
+                
+          //       });
+          //  eslint-disable-next-line
+                for(var i = 0;i<totalPieces;i++) {
+                    let bytesStas=bytesPerPiece * i;
+                    let bytesEnd = bytesPerPiece + bytesStas
+                    if(bytesEnd >= item.dataSize){ 
+                        bytesEnd = item.dataSize
+                    }
+                    let j = i
+                    allFileData = [];
+                  axios({
+                        url: '/resource/bigfile/download/do',
+                        params: {filePath :item.filePath},
+                        method:'get',
+                        headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
+                        responseType: 'blob',
+                        // cancelToken: window.source.token
+                      //  cancelToken: new CancelToken(function executor(c){
+                      //     window.cancels.tokens = c
+                      //   })
+                      }).then((res)=>{
+                      allFileData.push({
+                        data:res.data,
+                        ind:j
+                      })
+                        window.eventBus.$emit("realProgress",{
                           totalPieces:totalPieces,
-                          bytesPerPiece:bytesPerPiece,
                           filesize:item.dataSize,
+                          bytesPerPiece:bytesPerPiece,
+                          fileId:item.dataId,
+                          total:j,
+                          bytesStas:bytesStas,
+                          bytesEnd:bytesEnd,
                           allFileData:allFileData,
-                          fileDownloadId:item.fileDownloadId,
-                          fileId: item.dataId,
                           name:item.name
-                      });
+                        });
+                      if(allFileData.length == totalPieces) {
+                        window.eventBus.$emit("decreased", {
+                            totalPieces:totalPieces,
+                            bytesPerPiece:bytesPerPiece,
+                            filesize:item.dataSize,
+                            allFileData:allFileData,
+                            fileDownloadId:item.fileDownloadId,
+                            fileId: item.dataId,
+                            name:item.name
+                        });
+                        setTimeout(()=>{
+                          that.downIstrue =true
+                        },500)
+                      }
+                    })
+                  }
+              
+              } else {
+                getFileDownload({fileId :item.dataId,resourceName:item.name}).then((res)=>{
+                  const blob = res.data;
+                  let link = document.createElement('a')
+                  let url = window.URL.createObjectURL(new Blob([blob]))
+                      link.style.display = 'none'
+                      link.href = url
+                      link.setAttribute('download', $('.transverseClass').find('p span').text())
+                      document.body.appendChild(link)
+                      link.click()
+                      document.body.removeChild(link); //下载完成移除元素
+                      window.URL.revokeObjectURL(url); //释放掉blob对象
                       setTimeout(()=>{
                         that.downIstrue =true
                       },500)
-                    }
-                  })
-                }
-            
-            } else {
-              getFileDownload({fileId :item.dataId,resourceName:item.name}).then((res)=>{
-                const blob = res.data;
-                let link = document.createElement('a')
-                let url = window.URL.createObjectURL(new Blob([blob]))
-                    link.style.display = 'none'
-                    link.href = url
-                    link.setAttribute('download', $('.transverseClass').find('p span').text())
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link); //下载完成移除元素
-                    window.URL.revokeObjectURL(url); //释放掉blob对象
-                    setTimeout(()=>{
-                      that.downIstrue =true
-                    },500)
-              })
+                })
+              }
             }
           })
       }
@@ -2120,12 +2154,13 @@ export default {
       li {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         border: 1px solid #FA5C0C;
         border-bottom: 0;
         padding: 10px 14px;
         color: #373737;
         font-size: 14px;
-        &:nth-child(5) {
+        &:nth-child(6) {
           border-bottom: 1px solid #FA5C0C;
         }
       }

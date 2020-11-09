@@ -51,10 +51,10 @@ module.exports = {
   devServer: {
     port: 3000,
     proxy: {
-      // http://192.168.10.48 本地
-      // http://124.70.51.21 线上
+      // http://192.168.10.48:9201 本地
+      // http://124.70.51.21:8999 线上
       '/resource': {
-        target: 'http://124.70.51.21:9201',
+        target: 'http://192.168.10.48:9201',
         ws: false,
         changeOrigin: true
       }
