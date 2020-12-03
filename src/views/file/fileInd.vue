@@ -324,6 +324,7 @@
 import $ from 'jquery'
 //  eslint-disable-next-line
 import { formatSize, formatDateTime } from '@/utils'
+import { getAction } from '../../apis/file.js'
 //  eslint-disable-next-line
 import axios from 'axios'
 //  eslint-disable-next-line
@@ -541,6 +542,7 @@ export default {
   }
 },
   mounted () {
+    console.log(getAction("http://124.70.51.21:9201/test"))
     this.mergeFn(this.$route.query.originId)
     $(".foot-right").find('img').eq(1).attr('src',this.urlImgselect[1]).siblings().attr('src',this.urlImg[0]);
     this.getHomeCountFileFn()

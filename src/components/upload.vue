@@ -78,10 +78,9 @@ export default {
         },
         initWebUpload() {
             let that = this;
-            // let token = Vue.$cookies.get('token')
             this.uploader = WebUploader.create({
                 auto: false, // 选完文件后，是否自动上传
-                server:'resource/bigfile/upload/do',  // 文件接收服务端
+                server:'http://192.168.10.48:9201/resource/bigfile/upload/do',  // 文件接收服务端
                 pick: {
                     id: this.uploadButton,     // 选择文件的按钮
                     multiple: "true",   // 是否多文件上传 默认false

@@ -60,10 +60,10 @@ export default {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             // 17346578001 123456
-      // http://192.168.10.48 本地
+      // http://192.168.10.48:9001 本地
       // http://123.57.102.27:8999 线上
             postAction(
-              `http://192.168.10.48:9001/api-auth/oauth/token?grant_type=password&username=${this.ruleForm.phone}&password=${this.ruleForm.password}&scope=all&client_id=${localStorage.getItem('client_id')}&client_secret=${localStorage.getItem('client_secret')}`
+              `http://123.57.102.27:8999/api-auth/oauth/token?grant_type=password&username=${this.ruleForm.phone}&password=${this.ruleForm.password}&scope=all&client_id=${localStorage.getItem('client_id')}&client_secret=${localStorage.getItem('client_secret')}`
             ).then((res)=> {
               if(res.data.code == 200) {
                 let token = res.data.data.token_type+' '+ res.data.data.access_token

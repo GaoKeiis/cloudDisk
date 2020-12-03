@@ -15,6 +15,7 @@ import OnlyMessage from './utils/onlyMsgbox'
 Vue.prototype.$message = OnlyMessage
 localStorage.setItem('client_id','ucc-client');
 localStorage.setItem('client_secret','ucc-secret-8888');
+
 new Vue({
   router,
   store,
