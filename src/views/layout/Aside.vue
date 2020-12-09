@@ -31,7 +31,7 @@ export default {
         index: '2',
         text:'进度',
         imgUrl:require("../../assets/speed.png"),
-        urlPath:'/folder/1'
+        urlPath:''
       }]
     }
   },
@@ -46,8 +46,8 @@ export default {
   methods: {
     routerFn() {
       let currentPath = this.$router.currentRoute.path;
-      if(currentPath == "/folder/file" || currentPath == "/folder/1" || currentPath == "/folder/file/record"){
-           this.navbar = []
+      if(currentPath == "/folder/file" || currentPath == "/folder/file/record"){
+          this.navbar = []
             this.navbar.push({
               name: 'folder',
               index: '1',
@@ -59,52 +59,76 @@ export default {
               index: '2',
               text:'进度',
               imgUrl:require("../../assets/speed.png"),
-              urlPath:'/folder/1'
+              urlPath:'/folder/file'
             })
+            $(".file-all").parent('div').css('height','100%')
             this.$nextTick(()=>{
-              if(currentPath == "/folder/1") {
+              if($('.navbar-menu').find($(".is-active p")).text() == "进度") {
                 $('.navbar-menu').find("li").eq(1).addClass('is-active').siblings().removeClass("is-active")
-              } else {
+                $(".file-all").hide()
+                $(".speed").show()
+                $(".file-all").parent('div').css('height',0)
+              } else{
+                $(".file-all").parent('div').css('height','100%')
                 $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
+                $(".file-all").show()
+                $(".speed").hide()
               }
             })
         } else {
-           this.navbar = []
+          this.navbar = []
           this.navbar.push({
               name: 'task',
               index: '1',
               text:'任务',
               imgUrl: require("../../assets/folder.svg"),
-              urlPath:'/folder/2'
+              urlPath:'/folder/task'
             }, {
               name: 'ganttchart',
               index: '2',
               text:'甘特图',
               imgUrl:require("../../assets/ganttchart.png"),
-              urlPath:'/folder/4'
+              urlPath:'/folder/ganttChart'
             }, {
               name: 'implement',
               index: '3',
               text:'执行',
               imgUrl:require("../../assets/implement.png"),
-              urlPath:'/folder/5'
+              urlPath:'/folder/implement'
             })
             this.$nextTick(()=>{
-              if(currentPath == "/folder/2") {
+              if(currentPath == "/folder/task") {
                 $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
-              } else if(currentPath == "/folder/4") {
+              } else if(currentPath == "/folder/ganttChart") {
                 $('.navbar-menu').find("li").eq(1).addClass('is-active').siblings().removeClass("is-active")
-              } else if(currentPath == "/folder/5") {
+              } else if(currentPath == "/folder/implement") {
                 $('.navbar-menu').find("li").eq(2).addClass('is-active').siblings().removeClass("is-active")
               }
             })
         }
     },
     linkToFileList(paths) {
-      this.$router.push(paths)
+      if(this.$route.meta.title == "云盘") {
+        this.$router.push(this.$route.fullPath)
+      } else {
+        this.$router.push(paths)
+      }
+      
     },
     navbarFn(index) {
-       $('.navbar-menu').find("li").eq(index-1).addClass('is-active').siblings().removeClass("is-active");
+      $('.navbar-menu').find("li").eq(index-1).addClass('is-active').siblings().removeClass("is-active");
+      if($('.navbar-menu').find($(".is-active p")).text() == '进度') {
+        $(".file-all").hide()
+        $(".file-all").parent('div').css('height',0)
+        $(".speed").show()
+      }
+      if($('.navbar-menu').find($(".is-active p")).text() == '文件') {
+        $(".file-all").parent('div').css('height','100%')
+        $(".file-all").show()
+        $(".speed").hide()
+        $('.secordNoe').hide();
+        $('.file-list').css('display','flex');
+      }
     }
   }
 }

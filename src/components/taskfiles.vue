@@ -201,10 +201,10 @@ export default {
       this.$nextTick(()=> {
         // 监听窗口大小变化
         if($(".abow_dialog .el-dialog").length>0) {
-          this.addressURL = "/folder/4"
+          this.addressURL = "/folder/ganttChart"
           $(".taskfiles-cont").height($(".abow_dialog .el-dialog").innerHeight()).css("flex",'none')
         } else{
-          this.addressURL = "/folder/2"
+          this.addressURL = "/folder/task"
         }
       })
       this.getHomeCountFileFn();
@@ -266,9 +266,7 @@ export default {
           } else {
             this.$message.error(res.data.message);
           }
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+        })
     },
 
       getHomeCountFileFn() {
@@ -278,9 +276,7 @@ export default {
           } else {
             this.$message.error(res.data.message);
           }
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+        })
       },
       filistClick(columns,event,enebtnd) {
         this.filistItem = columns

@@ -65,6 +65,7 @@ export default {
             fileIds: [],
             blockinds:0,
             filekinds:0,
+            formDataFileId:0
         };
     },
     mounted() {
@@ -80,10 +81,10 @@ export default {
             let that = this;
             this.uploader = WebUploader.create({
                 auto: false, // 选完文件后，是否自动上传
-                server:'http://192.168.10.48:9201/resource/bigfile/upload/do',  // 文件接收服务端
+                server:'http://124.70.51.21:9201/resource/bigfile/upload/do',  // 文件接收服务端
                 pick: {
                     id: this.uploadButton,     // 选择文件的按钮
-                    multiple: "true",   // 是否多文件上传 默认false
+                    multiple: "false",   // 是否多文件上传 默认false
                     label: '',
                 },
                 accept: this.getAccept(this.accept),  // 允许选择文件格式。
@@ -93,14 +94,13 @@ export default {
                 //fileSingleSizeLimit: this.fileSingleSizeLimit, // 限制单个上传图片的大小
                 formData: {},  // 上传所需参数
                 chunked: true,          //分片上传
-                chunkSize: 2048000,    //分片大小
+                chunkSize: 204800,    //分片大小
                 duplicate: true,  // 重复上传
                 method:'POST'
             });
             // 当有文件被添加进队列的时候，添加到页面预览
-            this.uploader.on('fileQueued', (file) => {
+            this.uploader.on('beforeFileQueued', (file) => {
                     let folderIds,resourceName;
-                    console.log($(".transverseClass"))
                     if($(".transverseClass").attr("data-id")) {
                         folderIds = $(".transverseClass").attr("data-id")
                         resourceName = $(".transverseClass").find('p span').text()
@@ -109,7 +109,7 @@ export default {
                         resourceName = $(".current-action").find('p a').text()
                     } else {
                         folderIds = this.$route.query.originId
-                        resourceName = this.$route.query.names
+                        resourceName = file.name
                     }
                 if(file.size > 1048000) {
                     let Fileinitdata = {  
@@ -121,18 +121,17 @@ export default {
                         };
                     getFileinit(Fileinitdata).then((res) => {
                         if(res.data.code == 200) {
+                            that.filekinds = 0
                             that.fileIds.push(res.data.data.fileId)
-                            that.uploader.options.formData.fileId =  res.data.data.fileId;
+                            that.formDataFileId = res.data.data.fileId;
                             that.blockinds = 0
                             that.$message.success('请前往进度页面，查看上传进度')
                         } else {
                             that.$message.error(res.data.message);
                             }
-                        }).catch((err) => {
-                            that.$message.error(err.data.message);
-                        });
+                        })
                         let itemVal = setInterval(()=>{
-                            if(that.fileIds.length) {
+                            if(that.fileIds.length>0) {
                                 that.uploader.options.auto = true
                                 that.uploader.upload()
                                 this.$emit('fileChange', file,that.fileIds);
@@ -163,28 +162,46 @@ export default {
             this.uploader.on('uploadProgress', (file, percentage) => {
                 this.$emit('progress', file, percentage);
             });
-
             this.uploader.on('uploadBeforeSend', function( block, data,headers ) {
-                // block为分块数据。
-                // file为分块对应的file对象。
-                $.extend(headers, {
-                    "Authorization": that.$cookies.get('token')
-                });
-                if(block.chunk+1<=block.chunks) {
-                    data.chunk = block.chunk+1
-                    data.chunks = block.chunks
-                    data.fileId = that.fileIds[that.filekinds-1]
-                }
-                if(block.chunk+1 == block.chunks) {
-                    that.filekinds++;
+                if(that.fileIds.length>0) {
+                    // block为分块数据。
+                    // file为分块对应的file对象。
+                    $.extend(headers, {
+                        "Authorization": that.$cookies.get('token')
+                    });
+                    if(block.chunk+1<=block.chunks) {
+                        data.chunk = block.chunk+1
+                        data.chunks = block.chunks
+                        data.fileId = that.fileIds[that.filekinds]
+                    }
+                    if(block.chunk+1 == block.chunks) {
+                        if(that.fileIds.length>1) {
+                            that.filekinds++;
+                        } else {
+                            that.filekinds = 0;
+                        }
+                    }
+                } else {
+                    if(block.chunk+1<=block.chunks) {
+                        data.chunk = block.chunk+1
+                        data.chunks = block.chunks
+                        data.fileId = that.formDataFileId+1
+                    }
                 }
             });
             this.uploader.on('uploadSuccess', (file, response) => {
-                console.log(file,response)
                 if(response.code == 200) {
                     that.blockinds++;
                     if(that.fileIds.length == that.blockinds) {
                         this.$emit('success', that.fileIds);
+                        if(that.fileIds.length == 1) {
+                            that.filekinds = 0;
+                            that.fileIds = [];
+                        }
+                        if(that.fileIds.length == that.filekinds) {
+                            that.filekinds = 0;
+                            that.fileIds = [];
+                        }
                     }
                 } else {
                     this.$message.error(response.data.message);

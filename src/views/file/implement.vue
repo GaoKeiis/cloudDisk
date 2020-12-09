@@ -1740,6 +1740,7 @@ export default {
   .person{
     display: flex;
     align-items: center;
+    cursor: pointer;
       p {
         font-size: 14px;
         color: #707070;

@@ -51,7 +51,6 @@
             :props="taskProps"
             class="tasks-tree"
             node-key="id"
-              
             highlight-current
             :filter-node-method="taskfilter"
             @node-expand="expandFn"
@@ -108,7 +107,6 @@
       :visible.sync="dialogVisible"
       class="abow_dialog"
       lock-scroll
-      destroy-on-close
       width="50%">
       <div class="task-dialog">
       <div class="right-operation">
@@ -122,7 +120,7 @@
               v-for="item in citiesAll"
               class="statesCla"
               :key="item.value" :command="item.value">
-               <img v-if="item.imgUrl" :src="item.imgUrl">{{ item.label }}</el-dropdown-item>
+              <img v-if="item.imgUrl" :src="item.imgUrl">{{ item.label }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -152,11 +150,10 @@
                 v-model="rightText">
               </el-input>
               <el-tree
-            :expand-on-click-node="false"
-               :data="rightData"
+                :expand-on-click-node="false"
+                :data="rightData"
                 :props="rightProps"
                 class="person-tree"
-                  
                 :filter-node-method="rightfilter"
                 show-checkbox
                 check-strictly
@@ -205,7 +202,7 @@
             </div>
           </el-popover>
         </div>
-         <div class="right-sTime">
+        <div class="right-sTime">
             <el-date-picker
               v-model="sTime"
               type="date"
@@ -241,53 +238,52 @@
         </div> -->
       </div>
       <div class="right-participants">
-       <div class="participants-choice">
+        <div class="participants-choice">
           <el-popover
             placement="bottom-start"
             popper-class="choicefolder"
-            trigger="click"
             v-model="choicePerson"
+            :popper-options="{ removeOnDestroy: true }"
             >
-          <el-input
-            placeholder="搜索成员"
-            suffix-icon="el-icon-search"
-            size="small"
-            v-model="choiceText">
-          </el-input>
-             <el-tree
-           :expand-on-click-node="false"
-            :data="jurisdData"
-            :props="jurisdProps"
-            show-checkbox
-            class="choice-tree"
-              
-            check-on-click-node
-                node-key="userId"
-            :filter-node-method="choicefilter"
-            ref="choicetree">
-              <div class="jurisd-node" slot-scope="{ node, data }">
-                <div class="jurisd-custom">
-                  <div v-if="data.imgurl">
-                    <img v-if="data.sex == 1" :src="data.imgurl" style="border:1px solid #00A8FF;border-radius: 100%;">
-                    <img v-else-if="data.sex == 2" :src="data.imgurl" style="border:1px solid #FF0066;border-radius: 100%;">
-                    <img v-else :src="data.imgurl">
+            <el-input
+              placeholder="搜索成员"
+              suffix-icon="el-icon-search"
+              size="small"
+              v-model="choiceText">
+            </el-input>
+            <el-tree
+              :expand-on-click-node="false"
+              :data="jurisdData"
+              :props="jurisdProps"
+              show-checkbox
+              class="choice-tree"
+              check-on-click-node
+              node-key="userId"
+              :filter-node-method="choicefilter"
+              ref="choicetree">
+                <div class="jurisd-node" slot-scope="{ node, data }">
+                  <div class="jurisd-custom">
+                    <div v-if="data.imgurl">
+                      <img v-if="data.sex == 1" :src="data.imgurl" style="border:1px solid #00A8FF;border-radius: 100%;">
+                      <img v-else-if="data.sex == 2" :src="data.imgurl" style="border:1px solid #FF0066;border-radius: 100%;">
+                      <img v-else :src="data.imgurl">
+                    </div>
+                    <div v-else>
+                      <img v-if="data.sex == 1" src="../../assets/person-icon.png" style="border:1px solid #00A8FF;border-radius: 100%;">
+                      <img v-else-if="data.sex == 2" src="../../assets/person-icon.png" style="border:1px solid #FF0066;border-radius: 100%;">
+                      <img v-else src="../../assets/person-icon.png">
+                    </div>
+                        <p>
+                          {{ node.label }}
+                          <br />
+                          <span v-for="(items,ind) in data.roles" :key='ind'>{{items}}</span>
+                        </p>
                   </div>
-                  <div v-else>
-                    <img v-if="data.sex == 1" src="../../assets/person-icon.png" style="border:1px solid #00A8FF;border-radius: 100%;">
-                    <img v-else-if="data.sex == 2" src="../../assets/person-icon.png" style="border:1px solid #FF0066;border-radius: 100%;">
-                    <img v-else src="../../assets/person-icon.png">
-                  </div>
-                      <p>
-                        {{ node.label }}
-                        <br />
-                        <span v-for="(items,ind) in data.roles" :key='ind'>{{items}}</span>
-                      </p>
                 </div>
-              </div>
-          </el-tree>
+            </el-tree>
               <div class="person-btn">
                 <el-button size="small" @click="choiceBuild()">确定</el-button>
-                <el-button size="small" @click="choicePerson = !choicePerson">取消</el-button>
+                <el-button size="small" @click="choicePerson = false">取消</el-button>
               </div>
             <div slot="reference" class="person">
               <p>参与人</p>
@@ -340,11 +336,11 @@
       <ul class="ganttList">
         <li v-for="(item,ind) in list" :key="ind" @click="ganttClass(ind)" :class="actionInd == ind?'actions':''">{{ item }}</li>
       </ul>
-      <div style="height:700px;" ref="gantt"></div>
+      <div style="height: calc(100% - 32px);" ref="gantt"></div>
     </div>
   </div>
 </template>
- 
+
 <script>
 import gantt from 'dhtmlx-gantt'
 import $ from 'jquery'
@@ -562,7 +558,7 @@ export default {
       this.$refs.taskTree.filter(val);
     },
     TaskClickId(val) {
-     this.$refs.taskTree.setCurrentKey(val);
+      this.$refs.taskTree.setCurrentKey(val);
     },
     levevalue(val) {
       let levelStr
@@ -588,6 +584,7 @@ export default {
   },
   mounted() {
     this.getUsersFn()
+    this.listenerFunction();
     window.eventBus.$on("ToupdateData",()=>{
       this.getTaskListFn()
     });
@@ -598,12 +595,29 @@ export default {
     })
     this.ganttFn()
   },
+  beforeDestroy () {
+    document.removeEventListener("scroll", this.listenerFunction);
+},
   methods: {
+    listenerFunction() {
+      $('.task-list').scroll(()=> {
+        $('.gantt_data_area').scrollTop($('.task-list').scrollTop())
+      })
+    },
     ganttFn() {
       //自适应甘特图的尺寸大小, 使得在不出现滚动条的情况下, 显示全部任务
-        gantt.config.autosize = true;
+        gantt.config.autosize = false;
+        gantt.config.smart_rendering = false;
+        gantt.config.scroll_size = 10;
         let that = this;
       gantt.attachEvent("onTaskClick", (id)=>{
+        $(".gantt_task_row").map((ind,item)=>{
+          $(item).removeClass("gantt_selected")
+          if($(item).attr("task_id") == id){
+            $(item).addClass("gantt_selected")
+          }
+        })
+            that.TaskClickId = ''
             that.TaskClickId = id
             return true
       })
@@ -612,8 +626,7 @@ export default {
             return false;
         });
         gantt.attachEvent("onAfterTaskUpdate", function(id,item){ // 拖动进度事件
-          new Date(item.end_date).getMonth() ,new Date(item.end_date).getDate()
-          let endDate = new Date(item.end_date).getDate()>=10?new Date(item.end_date).getDate():"0"+new Date(item.end_date).getDate()
+          let endDate = (new Date(item.end_date).getDate()-1)>=10?new Date(item.end_date).getDate()-1:"0"+(new Date(item.end_date).getDate()-1)
           let endMonth = (new Date(item.end_date).getMonth()+1)>=10?(new Date(item.end_date).getMonth()+1):'0'+(new Date(item.end_date).getMonth()+1)
           let endYear = new Date(item.end_date).getFullYear()
           let startDate = new Date(item.start_date).getDate()>=10?new Date(item.start_date).getDate():"0"+new Date(item.start_date).getDate()
@@ -666,7 +679,7 @@ export default {
         gantt.config.time_step = 0;
         gantt.config.min_duration = 24*60*60*1000;
           //任务条显示内容
-          gantt.templates.task_text = function(start, end, task) {
+        gantt.templates.task_text = function(start, end, task) {
             let bgColor;
             if(task.imgurl == "") {
               task.imgurl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAYAAABxLuKEAAAABHNCSVQICAgIfAhkiAAAB15JREFUeF7lXE1S3DgUltSbRCyGnGDICQJLkKsGTpDOCSAnIDlBwgkCJwicYOAEgSoLlpATDDlBYBGKDdbU53rqem3c3ZIt25C4igpFJOu9T0/vX5ZiwMdaeyyEeFtHgnPuFH+XUp46566llN+NMVd9kSu7XOjy8nL5169fb6WUm8658Wg0ere+vl4yjMdai9//CaHBOfc9y7LVkLEpxnQCzMXFxWZRFNtCiJ0KkXvGmM8MmFWt9fXa2toNH2etXVVKLTvn8AMwViFBWZbts7l4N6Tt0BhzkgIM/o6kwFxcXKwURfFNCLHCFjkBU6PR6Hh9ff06FQPW2ksARu+7ds59zrLsKNX7kwJDx8Mzf6iUOkwJBmeaNgFSg5+/PUBKqff8uDYFqhUw0CH39/fLnHkcgz6VJG0GwMERLQFyzh1lWVY9xlEYNQbm/Px8XBTFVyHEVZZlW1GrdjTYWgtwPkgpdzY2NmDxGj/RwJCl+SSl/ECrnmitd6oKtDFFLSeCvhS0RAGDRe/u7qBcS6XnnPvILUVLnjqZbq3FkdrVWm/FABYMTAWUWyHEZt+6pAly1loYA+ieqxhwgoHxzhgcraWlpc0Y9JswlGoOrNfDw8OxlPJNDDgxwOD47Gutx88FFA8u6cXTGHCCgUm1g0O9pwqOMWZtHi1zgRnCJ+kSOHIKEYj+JYSYCk+q684EhrT51+dgeWLAxGbDWzbGeHejdnotMKSwLqWUCOKevEmOASZ0bC0weZ5/Q6pACHFmjMG/f9zzCBi4+s65f4UQt1rrledmgWJ2EMfKOfdFKXVQDSEeAWOt/Y/SBnOVUwwBT3UsxVafhBDXxpjXnM4pYLzCFUL8MMbwnMpT5a01Xcwzfm+MOfQvnAImz3NEpmWEyge1Xv0Jv4AJw5TUPDpKqaLTGCzIhPKk+EmfcZiXGinlO69rBvV8CRDkdB4luZEOlVJ+7AMgpmuwIWNs6mDAMBEuM25KKQR6N0iAF0UxllJuO+duCJzJ2Y+RxNCx5BHD6Ait9StY4hIYMtEQ5YOedggSgmT2zPQFSRNqSm40Gq11lTv24Flr91G/WlpaOpwA4wtffXm5PoWhlNqal7imMgwSYxMRD5WCtuNKicnz/Cfcf6XU6653holtELMeRC/ibRkOnS9JZCHWvfguTAqCHEivGBdJVyjDoeMADHKiiKJblxxCFvXAcNM4b16fwAAL59y2lPIIwKDsubsoPxHCdMiYBhJT0teHxDCzvQdgysJ66A6GMD9vDCXVkaD+WY1P6uaR87VsjFluu/ai+SyAPpsA08eOeMLyPD8kP2VurofvIG8GWMRg0/9n0nw2iINHUoMUI8oan40xe5wZXtTrsyrBLOb1IMAABMqFQHLekIeLkiqO2Ap6aSh72HupxlrrBgsJWEMRIvm69MYP6nuZ9NI0PR6x8wYDhhTcFwaI758p28hevHhxVc0a0tnfNca8i2U0dvwEGP+LMabzY0X5HoCCZ09rvR+SOu3Tl/FAwiqhzQt1lrUuA0gGCo7JOGatoYAp/ZguzTUzgz+01qshUsKPwG8JDJlmxGJQskFSWc3oOec2qZyDvMykj09rfRALcoDzuQJpxlGC5kemPCioa6DMylgs5v3z+n8r608lsGNpq46vhgSe8KA0QOziPp8akzag3r5JuvPh4WHHe8qj0ai0XkVR3MToqRC6Wd/xe552eFRbCXnZvDGxuZdZ7+pLx/i8FI58aaIJqdPU8YgPytpmBvsAhm3iLQLWTn2XVAyxsx+kvJtIOnMnSpXSKTBkpjfbNkKTZYPv01m1gHWalwq9U2Ca7NwQc2aWT0AM7S7cdYhS78HbEIDwNUkfoqu95H0iMd47RQogy7JXQxM69PrVbgffE5vUcRqaySbrz2oDSe7TNCGujzl5nm/XXeepaxzyUtNJiNAHs6FrMDfgUUvdzFYz6Jo+asahTKQexxsw6zILteaaxQy/rdRYa9FniJaP2hhxXjvr+KnfLGkqRczLvVVKrdbV6/84B4/V6nF1edJBVQU5CBi45JiYMinUdLfbzmPNiOgFmtkdvhAYQhjn8Sbmvk9bBrqaT/zsL2rsXghMkystXTHV53sXAgNinjM4MMu41B57eTQImCo4VFLdSp1aTC0RVAbGvYjl2G6OYGA8OHd3d6gxl99jiF0sNePz3nd+fr7rnCs/edCkMSAKGE8INRvtPMVLGOTRfqVyS+PL6Y2A8dLDzfcQHeVViaFWsS84OmiVbXMxvTEwVaLojhMUXdKPT8QcP9ZUfaKU+tCmAzUJMJVGIPCCD+HsSylP2hA3DxSyNm83NjYO+Dhk4mItUN06SYBhumfq4xOk+PCJlL0UX+gg/YF+QXisZUGuq5p7UmA8QJQmBfHljZJqXYlEHk3XNy9fvvw+L9QgT/UT1a+rDYr4oA5a1ZJ/oqkTYDxAvuyhlDqtfEqFfxRnSpKrOWfWKYFxuHuA7oxjrfVxl7Fbp8DM0hGUOfOXUHEk0J8zeXgT0yxwY5Ryk7H/A0vPrDSCq5MLAAAAAElFTkSuQmCC';
@@ -690,12 +703,13 @@ export default {
                     </article>
                   </div>
                   <div class="taskbar-time">
-                    <article>${new Date(start).getMonth()+1}月${new Date(start).getDate()}日 - </article>
-                    <article>${new Date(end).getMonth()+1}月${new Date(end).getDate()}日</article>
+                    <article>${(new Date(start).getMonth()+1)>=10?new Date(start).getMonth()+1:'0'+(new Date(start).getMonth()+1)}月${new Date(start).getDate()>=10?new Date(start).getDate():'0'+new Date(start).getDate()}日 - </article>
+                    <article>${(new Date(end).getMonth()+1)>=10?(new Date(end).getMonth()+1):'0'+(new Date(end).getMonth()+1)}月${(new Date(end).getDate() - 1)>=10?new Date(end).getDate() - 1:'0'+(new Date(end).getDate() - 1)}日</article>
                   </div>
             </div>`;
             return str
           } 
+        gantt.clearAll();
         gantt.init(that.$refs.gantt);  //初始化
         gantt.parse(that.tasks);
         gantt.showDate(new Date())
@@ -739,7 +753,6 @@ export default {
             }
           })
         this.leaderIdStrs = data.leaderIdStr
-    
           this.rightPerson = false;
           this.choicePerson = false;
           this.$nextTick(() => {
@@ -842,10 +855,16 @@ export default {
       this.tasks.data.map((item)=>{
         if(item.id == data.id) {
             item.open = true
+        } else {
+            item.open = false
         }
       })
+      gantt.clearAll();
       gantt.init(this.$refs.gantt);  //初始化
-      gantt.parse(this.tasks); 
+      gantt.parse(this.tasks);
+      $('.gantt_data_area').scroll(function() {
+        $('.task-list').scrollTop($('.gantt_data_area').scrollTop())
+      })
     },
     nodeClickFn(data) {
       $(".gantt_task_row").map((ind,item)=>{
@@ -856,13 +875,18 @@ export default {
       })
     },
     collapseFn(data) {
+      console.log(123)
       this.tasks.data.map((item)=>{
         if(item.id == data.id) {
             item.open = false
         }
       })
+      gantt.clearAll();
       gantt.init(this.$refs.gantt);  //初始化
       gantt.parse(this.tasks); 
+      $('.gantt_data_area').scroll(function() {
+        $('.task-list').scrollTop($('.gantt_data_area').scrollTop())
+      })
     },
     initData() {
       getTaskGanter().then((res)=>{
@@ -881,6 +905,7 @@ export default {
                   } else if (current.status == 1) { //进行中
                     current.color = '#FFAB7399'
                   }
+                  current.end_date = current.end_date.split('-')[0]*1+1+'-'+current.end_date.split('-')[1]+'-'+current.end_date.split('-')[2]
                 getSelectUser({userIdStr:current.leaderIdStr}).then((Seleres)=>{
                   if(Seleres.data.code == 200) {
                     current.name = Seleres.data.data.realName
@@ -894,8 +919,12 @@ export default {
               })
             setTimeout(()=>{
               this.tasks.data = res.data.data
+              gantt.clearAll();
               gantt.init(this.$refs.gantt);  //初始化
               gantt.parse(this.tasks);
+              $('.gantt_data_area').scroll(function() {
+                $('.task-list').scrollTop($('.gantt_data_area').scrollTop())
+              })
             },200)
           }
         } else {
@@ -903,7 +932,7 @@ export default {
         }
       })
     },
-     pickerStartDate() {
+    pickerStartDate() {
       var _this = this;
       return {
         disabledDate(time) {
@@ -925,6 +954,7 @@ export default {
       getTaskUpdate(dto).then((res)=>{
         if(res.data.code == 200) {
           this.getTaskListFn()
+            this.initData()
         } else {
           this.$message.error(res.data.message);
         }
@@ -943,6 +973,7 @@ export default {
       getTaskUpdate(dto).then((res)=>{
         if(res.data.code == 200) {
           this.getTaskListFn()
+            this.initData()
         } else {
           this.$message.error(res.data.message);
         }
@@ -965,6 +996,7 @@ export default {
         getTaskUpdate(dto).then((res)=>{
           if(res.data.code == 200) {
             this.getTaskListFn()
+            this.initData()
           } else {
             this.$message.error(res.data.message);
           }
@@ -984,6 +1016,7 @@ export default {
         getTaskUpdate(dto).then((res)=>{
           if(res.data.code == 200) {
             this.getTaskListFn()
+            this.initData()
           } else {
             this.$message.error(res.data.message);
           }
@@ -1001,6 +1034,7 @@ export default {
         getTaskUpdate(dto).then((res)=>{
           if(res.data.code == 200) {
             this.getTaskListFn()
+            this.initData()
           } else {
             this.$message.error(res.data.message);
           }
@@ -1153,6 +1187,7 @@ export default {
     },
     headClick(ind) {
       this.headInd = ind
+            this.initData()
       if(ind == 0) {
         this.getTaskListFn()
       } else if(ind == 3) {
@@ -1499,6 +1534,7 @@ export default {
   .person{
     display: flex;
     align-items: center;
+    cursor: pointer;
       p {
         font-size: 14px;
         color: #707070;
@@ -1645,8 +1681,9 @@ export default {
     @import "~dhtmlx-gantt/codebase/dhtmlxgantt.css";
     .el-dialog {
         margin-top: 4vh !important;
+        min-width: 700px;
     }
-.el-dialog--center .el-dialog__body{
+.el-dialog__body{
       padding: 0px 25px 10px;
 }
 .weekend {

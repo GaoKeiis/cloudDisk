@@ -11,8 +11,8 @@ Vue.config.productionTip = false
 window.eventBus = new Vue()
 import VueCookies from 'vue-cookies'
 Vue.use(VueCookies)
-import OnlyMessage from './utils/onlyMsgbox'
-Vue.prototype.$message = OnlyMessage
+  import OnlyMessage from './utils/onlyMsgbox'
+  Vue.prototype.$message = OnlyMessage
 localStorage.setItem('client_id','ucc-client');
 localStorage.setItem('client_secret','ucc-secret-8888');
 

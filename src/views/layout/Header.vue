@@ -10,7 +10,7 @@
       </div>
         <div class="head-tab">
            <el-tabs v-model="activeName">
-            <el-tab-pane label="任务" name="2"></el-tab-pane>
+            <el-tab-pane label="任务" name="task"></el-tab-pane>
             <el-tab-pane label="云盘" name="file"></el-tab-pane>
             <!-- <el-tab-pane label="成员" name="3"></el-tab-pane> -->
           </el-tabs>
@@ -38,9 +38,10 @@
 </template>
 
 <script>
-  import {
-  //  eslint-disable-next-line
-  getUserSelect
+import $ from 'jquery'
+import {
+//  eslint-disable-next-line
+getUserSelect
 } from '@/apis/api'
 export default {
   data() {
@@ -56,22 +57,24 @@ export default {
         this.$router.push(urlStr);
     },
     '$route' (to) {
-      if(to.path == "/folder/speed" || to.path == "/folder/1") {
+      if(to.path == "/folder/file") {
         this.activeName = 'file'
-      } else if(to.path == "/folder/2" || to.path == "/folder/4" || to.path == "/folder/5") {
-        this.activeName = '2'
-      } else if(to.path == "/folder/3") {
-        this.activeName = '3'
+        $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
+      } else if(to.path == "/folder/task" || to.path == "/folder/ganttChart" || to.path == "/folder/implement") {
+        this.activeName = 'task'
+      } else if(to.path == "/folder/member") {
+        this.activeName = 'member'
       }
     }
   },
   created() {
-      if(this.$route.path == "/folder/speed" || this.$route.path == "/folder/1") {
+      if(this.$route.path == "/folder/file") {
         this.activeName = 'file'
-      } else if(this.$route.path == "/folder/2" || this.$route.path == "/folder/4") {
-        this.activeName = '2'
-      } else if(this.$route.path == "/folder/3") {
-        this.activeName = '3'
+        $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
+      } else if(this.$route.path == "/folder/task" || this.$route.path == "/folder/ganttChart") {
+        this.activeName = 'task'
+      } else if(this.$route.path == "/folder/member") {
+        this.activeName = 'member'
       }
       this.getUserSelectFn()
       this.headTitle = localStorage.getItem('headTitle');

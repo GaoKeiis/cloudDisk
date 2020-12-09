@@ -156,20 +156,19 @@
         </div>
       </div>
       <div class="task-list">
-         <el-tree
-             :expand-on-click-node="false"
+        <el-tree
+            :expand-on-click-node="false"
             :data="taskList"
             :props="taskProps"
             node-key="id"
             class="task-tree"
-            
             highlight-current
             :filter-node-method="taskfilter"
             @node-click="handleNodeClick"
             ref="taskTree">
               <div class="taskNode" slot-scope="{ node, data }" @mouseover="mouseoverMask('operation'+data.id)" @mouseout="changeMask('operation'+data.id)">
                 <div class="task-custom">
-                  <p>
+                  <p :title="node.label">
                     <span v-if="data.notRead"></span>
                     {{ node.label }}
                   </p>
@@ -928,8 +927,8 @@ export default {
       getTaskPartnerList({taskId:this.handleStr.id}).then((res)=>{
         if(res.data.code == 200) {
           let userArr = []
-           this.$refs.choicetree.setCheckedKeys([]);
-           res.data.data.map((item)=>{
+          this.$refs.choicetree.setCheckedKeys([]);
+          res.data.data.map((item)=>{
               getSelectUser({userIdStr:item.partnerIdStr}).then((res)=>{
                 if(res.data.code == 200) {
                   item.namr = res.data.data.realName
@@ -1041,7 +1040,7 @@ export default {
       this.$nextTick(()=>{
         $(".detailsTab").find('li').eq(0).addClass("tabAction").siblings().removeClass("tabAction")
         this.detailsTab.map((item,ind)=>{
-           $(".detailsTab").find('li').eq(ind).find('img').attr("src",item.imgUrl);
+          $(".detailsTab").find('li').eq(ind).find('img').attr("src",item.imgUrl);
         })
         this.tabInd = 0
         $(".detailsTab").find('li').eq(0).find('img').attr("src",this.detailsTabselect[0]);
@@ -1220,10 +1219,10 @@ export default {
 .task-left {
   background: #707070;
   height: 100%;
-  width: 40%;
+  width: 44%;
   display: flex;
   flex-direction: column;
-  min-width: 500px;
+  min-width: 540px;
   .task-left-head{
     ul {
       display: flex;
@@ -1349,6 +1348,7 @@ export default {
 .task-list{
   flex: 0.99;
   height: 100%;
+  overflow: hidden;
   overflow-y: scroll;
 }
 /*滚动条样式*/
@@ -1435,8 +1435,10 @@ export default {
       font-size: 16px;
       color: #373737;
       flex: 0.6;
-      display: flex;
-      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 120px;
       span {
         width: 8px;
         height: 8px;
@@ -1479,12 +1481,18 @@ export default {
       align-items: center;
       flex: 1;
       min-width: 100px;
-      img {
-        height: 25px;
-        margin-right: 8px;
-      }
       color: #707070;
       font-size: 16px;
+      img {
+        height: 25px;
+        margin-right: 6px;
+      }
+      article{
+        max-width: 70px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     }
     .taskTime {
       flex: 1;

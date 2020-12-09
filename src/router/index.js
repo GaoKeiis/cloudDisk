@@ -9,6 +9,7 @@ Router.prototype.push = function push(location, onResolve, onReject) {
 }
 
 let router = new Router({
+  mode:'history',
   routes: [
         {
           path: '/',
@@ -30,24 +31,24 @@ let router = new Router({
                   meta: {title: '进度'}
                 },
                 {
-                  path: '/folder/2',
+                  path: '/folder/task',
                   component: () => import('@/views/file/task'),
                   props: true,
                   meta: {title: '任务'},
                 },
                 {
-                  path: '/folder/3',
+                  path: '/folder/member',
                   component: () => import('@/views/file/member'),
                   props: true,
                   meta: {title: '成员'},
                 },
                 {
-                  path: '/folder/4',
+                  path: '/folder/ganttChart',
                   component: () => import('@/views/file/ganttChart'),
                   meta: {title: '甘特图'},
                 },
                 {
-                  path: '/folder/5',
+                  path: '/folder/implement',
                   component: () => import('@/views/file/implement'),
                   meta: {title: '执行'},
                 },

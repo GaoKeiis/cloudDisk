@@ -2,9 +2,9 @@
   <div class="file-record">
     <div class="record-head">
       <h6>操作记录</h6>
-      <router-link to="/folder/file">
+      <a @click="recordoff()">
         <img src="../../assets/recordoff.png">
-      </router-link>
+      </a>
     </div>
     <div class="record-section">
       <el-table
@@ -58,8 +58,10 @@
 </template>
 
 <script>
+import $ from 'jquery'
 import { getResourceLog } from '@/apis/api'
   export default {
+    props: ['recordId'],
     data() {
       return {
         opensearch: '',
@@ -70,8 +72,12 @@ import { getResourceLog } from '@/apis/api'
       }
     },
     mounted() {
-      this.resource()
-       this.$nextTick(()=> {
+      window.eventBus.$on("recordPrpos",(record)=>{
+        if(record.recordId) {
+          this.resource()
+        }
+      });
+        this.$nextTick(()=> {
             this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop;
             // 监听窗口大小变化
             let self = this;
@@ -92,6 +98,11 @@ import { getResourceLog } from '@/apis/api'
               this.$message.error(res.data.message);
             }
           })
+      },
+      recordoff() {
+        $('.secordNoe').hide();
+        $('.file-list').css('display','flex');
+        $(".file-all").css('height','98%')
       }
     },
   }

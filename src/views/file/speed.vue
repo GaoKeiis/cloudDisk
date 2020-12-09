@@ -39,7 +39,7 @@
               <div class="tree-file">
                 <img v-if="suffixFun(data.suffix)" :src="suffixFun(data.suffix)">
                 <img v-else src="../../assets/other-icon.png">
-                <p>
+                <p :title="node.label">
                   {{ node.label }}
                   <span v-if="sizeFormatter(data.size)">{{ sizeFormatter(data.size) }}</span>
                 </p>
@@ -139,7 +139,7 @@
               <div class="tree-file">
                 <img v-if="suffixFun(data.suffix)" :src="suffixFun(data.suffix)">
                 <img v-else src="../../assets/other-icon.png">
-                <p>
+                <p :title="node.label">
                   {{ node.label }}
                   <span v-if="sizeFormatter(data.size)">{{ sizeFormatter(data.size) }}</span>
                 </p>
@@ -206,7 +206,7 @@
 
 <script>
 import $ from 'jquery'
-      //  eslint-disable-next-line
+//  eslint-disable-next-line
 import {formatSize} from '@/utils'
 import vueUpload from '../../components/upload';
 
@@ -315,20 +315,23 @@ export default {
   components: {
       vueUpload
   },
-  watch: {
-    '$route' (to) {
-      if(to.path == "/folder/1") {
-        // this.uploadList();
-        this.downdfileFn()
-      }
-    }
-  },
+  // watch: {
+  //   '$route' (to) {
+  //     if(to.path == "/folder/1") {
+  //       // this.uploadList();
+  //       this.downdfileFn()
+  //     }
+  //   }
+  // },
   computed: {
       uploader() {
           return this.$refs.uploader;
       }
   },
   mounted(){
+    window.eventBus.$on("speeds",()=>{
+      this.uploadList();
+    });
     $('.custom-tree-node').map((ind,item)=>{
       let paddingLeft = $(item).parent().css("padding-left");
       var lefts;
@@ -345,9 +348,14 @@ export default {
     window.addEventListener("beforeunload", e => {
       this.beforeunloadHandler(e);
   });
+  $(".file-all").show()
+  $(".speed").hide()
+  $(".file-all").parent('div').css('height','100%')
+  $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
+    this.downdfileFn()
       this.PercentaArr=[];
     window.eventBus.$on("realProgress",(progress)=>{
-        this.Percent+= Math.round((progress.bytesPerPiece/progress.filesize)*100);
+        this.Percent+= Math.ceil((progress.bytesPerPiece/progress.filesize)*100);
         this.PercentaArr.push(this.Percent)
         this.PercentaArr.sort((a,b)=>{ 
           return a.ind-b.ind
@@ -392,8 +400,8 @@ export default {
   methods: {
     downloadfolderFn(data) {
       getTreeList().then((res) => {
-         this.getTreeFn(data,res.data.data)
-         this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
+        this.getTreeFn(data,res.data.data)
+        this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
             this.$router.replace({
               path: '/folder/file',
               query:{
@@ -405,18 +413,26 @@ export default {
               name:"首页",
               id:''
             })
+          this.treeAllArr.push({
+              name:this.treeStr.name,
+              id:this.treeStr.id
+            })
           let obj = {};
           this.treeAllArr = this.treeAllArr.reduce((cur,next) => {
               obj[next.id] ? "" : obj[next.id] = true && cur.push(next);
               return cur;
           },[])
-            localStorage.setItem("breadArr",JSON.stringify(this.treeAllArr))
+          localStorage.setItem("breadArr",JSON.stringify(this.treeAllArr))
+          $(".file-all").show()
+          $(".speed").hide()
+          $(".file-all").parent('div').css('height','100%')
+          $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
       })
     },
     folderFn(data) {
-       getTreeList().then((res) => {
-         this.getTreeFn(data,res.data.data)
-         this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
+      getTreeList().then((res) => {
+        this.getTreeFn(data,res.data.data)
+        this.treesArrFn(this.treesArr,this.treeStr.nodeParentId)
             this.$router.replace({
               path: '/folder/file',
               query:{
@@ -428,36 +444,40 @@ export default {
               name:"首页",
               id:''
             })
+          this.treeAllArr.push({
+              name:this.treeStr.name,
+              id:this.treeStr.id
+            })
           let obj = {};
           this.treeAllArr = this.treeAllArr.reduce((cur,next) => {
               obj[next.id] ? "" : obj[next.id] = true && cur.push(next);
               return cur;
           },[])
-            localStorage.setItem("breadArr",JSON.stringify(this.treeAllArr))
+          localStorage.setItem("breadArr",JSON.stringify(this.treeAllArr))
+          $(".file-all").show()
+          $(".speed").hide()
+          $(".file-all").parent('div').css('height','100%')
+          $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
       })
     },
     treesArrFn(treesArr,treeStr) {
-       this.treeAllArr = [];
+      this.treeAllArr = [];
       treesArr.map((item)=>{
         if(item.nodeParentId == treeStr) {
           treesArr.map((tree)=>{
             if(item.nodeParentId == tree.id) {
               if(tree.nodeParentId !=0){
-                 this.treesArrFn(treesArr,tree.nodeParentId)
+                this.treesArrFn(treesArr,tree.nodeParentId)
                   this.treeAllArr.push({
                     name:tree.name,
                       id:tree.id
                   })
-                  this.treeAllArr.push({
-                    name:item.name,
-                      id:item.id
-                  })
               } else {
                   if(this.treeStr.id == item.id){
-                     this.treeAllArr.unshift({
-                    name:item.name,
+                    this.treeAllArr.unshift({
+                      name:item.name,
                       id:item.id
-                  })
+                    })
                   }
               }
             }
@@ -492,6 +512,9 @@ export default {
           }
           getDownloadDelete(deleteStr).then((res) => {
             if(res.data.code == 200) {
+              window.myjq.map((item)=>{
+                item.abort()
+              })
               this.$message.success(res.data.message);
               this.downdfileFn()
             } else {
@@ -513,7 +536,6 @@ export default {
           $('.downBtn'+fileId).find(".downloadresumeClass").css('visibility','hidden');
           $('.downBtn'+fileId).find(".downloadstopClass").css('visibility','hidden');
             getDownloadEnd({fileDownloadId:fileDownloadId,resourceName:names}).then(()=>{
-              console.log(fileId)
               this.downdfileFn()
             })
             let link = document.createElement('a')
@@ -616,17 +638,20 @@ export default {
             getDownloadDelete(deleteStr).then((res) => {
               if(res.data.code == 200) {
                 this.downdfileFn()
+              window.myjq.map((item)=>{
+                item.abort()
+              })
               } else {
                 this.$message.error(res.data.message);
               }
             })
+            e = e || window.event;
+            if (e) {
+              e.returnValue = "您是否确认离开此页面";
+            }
+            return "您是否确认离开此页面";
           }
         })
-        e = e || window.event;
-        if (e) {
-          e.returnValue = "您是否确认离开此页面";
-        }
-        return "您是否确认离开此页面";
       }
     },
     downloadOper(ind) {
@@ -644,7 +669,7 @@ export default {
             let downloadArr = []
           this.downloadObjectdata.filter((item) => {
             if(!item.isOver) {
-                downloadArr.push(item)
+              downloadArr.push(item)
             }
           })
             downloadArr.map((item)=>{
@@ -681,18 +706,18 @@ export default {
       let that = this
       if(ind == 0) {
           if($(".speed-right-btn").find('p').eq(ind).text() == "全部暂停"){
+            if(that.ProgfileArr.length>0) {
+              that.ProgfileArr.map((item)=>{
+                that.uploader.stop(item);
+              })
+            }
             $(".speed-right-btn").find('p').eq(ind).html("全部开始")
             $(".resumeClass").removeClass("resNone")
             $(".stopClass").addClass("resNone")
-            if(this.ProgfileArr.length>0) {
-              this.ProgfileArr.map((item)=>{
-                this.uploader.stop(item);
-              })
-            }
           } else {
-            if(this.ProgfileArr.length>0) {
-              this.ProgfileArr.map((item)=>{
-                this.uploader.upload(item);
+            if(that.ProgfileArr.length>0) {
+              that.ProgfileArr.map((item)=>{
+                that.uploader.upload(item);
               })
             }
             $(".resumeClass").addClass("resNone")
@@ -826,6 +851,8 @@ export default {
           $('.progress'+uplodId).find('.el-progress-bar__innerText').html(res.data.data.uploadRate + '%');
           if(res.data.data.uploadRate == 100) {
             $('.progress'+uplodId).find('.el-progress-bar__inner').css("background","#FF8D40");
+          $('.progress'+uplodId).find('.el-progress-bar__inner').css("width",'99%');
+          $('.progress'+uplodId).find('.el-progress-bar__innerText').html('99%');
             $('.down'+uplodId).html('上传中')
           } else {
             $('.progress'+uplodId).find('.el-progress-bar__inner').css("background","#FF8D40");
@@ -891,13 +918,14 @@ export default {
           if(item.name ==  file.name) {
           $('.progress'+item.id).find('.el-progress-bar__inner').css("width",Math.floor(percent*100)+'%')
           $('.progress'+item.id).find('.el-progress-bar__innerText').text(Math.floor(percent*100)+'%')
-            $('.down'+ item.id).html("上传中")
-          if(Math.floor(percent*100)+'%' == '100%') {
-            $('.progress'+item.id).find('.el-progress-bar__inner').css("width",'100%')
-            $('.progress'+item.id).find('.el-progress-bar__inner').css('background-color','#34D0B6')
-          } else if(Math.floor(percent*100)+'%' == '0%') {
-            $('.down'+ item.id).html("等待中...")
-          }
+          $('.down'+ item.id).html("上传中")
+            if(Math.floor(percent*100)+'%' == '100%') {
+            $('.progress'+item.id).find('.el-progress-bar__inner').css("width",'99%')
+            $('.progress'+item.id).find('.el-progress-bar__innerText').text('99%')
+              // $('.progress'+item.id).find('.el-progress-bar__inner').css('background-color','#34D0B6')
+            } else if(Math.floor(percent*100)+'%' == '0%') {
+              $('.down'+ item.id).html("等待中...")
+            }
           }
         })
     },
@@ -918,11 +946,14 @@ export default {
             loading.close();
             this.$message.success("上传成功");
             $('.down'+item).html("上传完成")
+            $('.progress'+item).find('.el-progress-bar__inner').css("width",'100%')
+            $('.progress'+item).find('.el-progress-bar__inner').css('background-color','#34D0B6')
             $(".funBtn"+item).find("div").eq(0).hide()
             $(".funBtn"+item).find("div").eq(1).hide()
             $(".funBtn"+item).find("div").eq(2).hide()
             this.uploadList()
           } else {
+            loading.close();
             this.$message.error(res.data.message);
           }
         })
@@ -933,25 +964,31 @@ export default {
       this.uploader.cancelFile(file);
       // 在队列中移除文件
       this.uploader.removeFile(file, true);
-      this.uploader.reset()
       this.$message.error('上传失败，请重新上传');
       $('.down'+file.id).html("上传失败")
     },
     resume(data) {
       if(this.Progressfile) {
-        this.uploader.upload(data.file);
-        $('.funBtn'+data.id).find(".resumeClass").addClass("resNone")
-        $('.funBtn'+data.id).find(".stopClass").removeClass("resNone")
+            this.ProgfileArr.map((item)=>{
+              if(item.name == data.name) {
+                this.uploader.upload(item);
+                $('.funBtn'+data.id).find(".resumeClass").addClass("resNone")
+                $('.funBtn'+data.id).find(".stopClass").removeClass("resNone")
+              }
+            })
       } else {
         this.$message.error('上传失败，请重新上传');
       }
     },
     stop(data) {
       if(this.Progressfile) {
-        console.log(data.file,this.uploader.getFile(data.file.id))
-        this.uploader.stop(data.file);
-        $('.funBtn'+data.id).find(".resumeClass").removeClass("resNone")
-        $('.funBtn'+data.id).find(".stopClass").addClass("resNone")
+            this.ProgfileArr.map((item)=>{
+              if(item.name == data.name) {
+                this.uploader.stop(item);
+                $('.funBtn'+data.id).find(".resumeClass").removeClass("resNone")
+                $('.funBtn'+data.id).find(".stopClass").addClass("resNone")
+              }
+            })
       } else {
         this.$message.error('上传失败，请重新上传');
       }
@@ -998,6 +1035,9 @@ export default {
       return size 
     },
     speedLeft(item,ind) {
+      if(item.name == "下载") {
+        this.downdfileFn()
+      }
       this.activeClass = ind
     },
   }
@@ -1115,6 +1155,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    width: 84%;
     span{
       font-size: 12px;
       color: #707070;

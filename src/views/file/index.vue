@@ -56,28 +56,28 @@ export default {
             this.speedTrue = true
             this.ganttTrue = false
             this.implementTrue = false
-        } else if(paths == '/folder/2') {
+        } else if(paths == '/folder/task') {
             this.fileIndTrue = false
             this.taskTrue = true
             this.memberTrue = false
             this.speedTrue = false
             this.ganttTrue = false
             this.implementTrue = false
-        } else if(paths == '/folder/3') {
+        } else if(paths == '/folder/member') {
             this.fileIndTrue = false
             this.taskTrue = false
             this.memberTrue = true
             this.speedTrue = false
             this.ganttTrue = false
             this.implementTrue = false
-        } else if(paths == '/folder/4') {
+        } else if(paths == '/folder/ganttChart') {
             this.fileIndTrue = false
             this.taskTrue = false
             this.ganttTrue = true
             this.speedTrue = false
             this.memberTrue = false
             this.implementTrue = false
-          } else if(paths == '/folder/5') {
+          } else if(paths == '/folder/implement') {
             this.fileIndTrue = false
             this.taskTrue = false
             this.ganttTrue = false

@@ -2,14 +2,12 @@ import { getAction, postAction,postFileAction,downloadFileUrl } from './file'
 // 首页文件
 let ClouDiskUrl = 'http://124.70.51.21:9001/api-fb';
 let ClouDiskApiAuth = 'http://124.70.51.21:9001/api-auth';//  线上
-// let ClouResource = 'http://124.70.51.21:9201';//  线上
-// let ClouResource = 'http://192.168.10.48:9201';//  线上
 // let ClouDiskUrl = 'http://192.168.10.48:9001/api-fb'; // 本地
 // let ClouDiskApiAuth = 'http://192.168.10.48:9001/api-auth';
 // 初始化 -> 资源=当前剧组下所有的业务文件夹
 const getHomeInit = (params)=>getAction('/resource/init', params);
 // 所有文件的数量和大小 <- 资源首页
-const getHomeCountFile = (params)=>getAction('resource/home/countFile', params);
+const getHomeCountFile = (params)=>getAction('/resource/home/countFile', params);
 // 操作日志列表
 const getResourceLog = (params)=>getAction(ClouDiskUrl+ '/resourceLog/list', params);
 // 树状列表文件夹
@@ -44,10 +42,7 @@ const postFileUpload = (params)=>postFileAction('/resource/file/upload', params)
 const getPreview = (params)=>getAction('/resource/file/preview', params);
 // 文件权限
 const getAlloAuths = (params)=>getAction('/resource/folder/alloAuths', params);
-// // 文件成员
-// const getUsers = (params)=>getAction('/crew/users', params);
 // 文件成员
-// const getUsers = (params)=>getAction('/user/listUnderCrew', params);
 const getUsers = (params)=>getAction(ClouDiskApiAuth+ '/crew/listUser', params);
 //当前剧组下某个成员基本信息
 const getSelectUser = (params)=>getAction(ClouDiskApiAuth+ '/crew/selectUser', params);

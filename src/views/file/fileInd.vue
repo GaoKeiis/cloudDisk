@@ -1,5 +1,6 @@
 <template>
-  <div class="file-all">
+  <div style="height: 100%;">
+    <div class="file-all">
       <div class="file-list">
         <div class="file-list-head">
           <ul>
@@ -20,7 +21,7 @@
                   v-model="filtertreeText">
                 </el-input>
                 <el-tree
-            :expand-on-click-node="false"
+                  :expand-on-click-node="false"
                   class="filter-tree"
                   :data="filterdata"
                   :props="defaultProps"
@@ -31,10 +32,10 @@
                   <div class="custom-tree-node" slot-scope="{ node }">
                     <div class="filter-custom">
                       <img src="../../assets/folder-icon.png">
-                       <p v-if="node.label !='新建文件夹'">
-                       {{ node.label }}
+                      <p v-if="node.label !='新建文件夹'">
+                      {{ node.label }}
                       </p>
-                      <p v-else><el-input size="mini" v-focus @blur="treefolderChange()" v-model="treefolderName" placeholder="请输入内容"></el-input></p>
+                      <p v-else><el-input size="mini" v-focus @change="treefolderChange()" v-model="treefolderName" placeholder="请输入内容"></el-input></p>
                     </div>
                   </div>
                 </el-tree>
@@ -76,7 +77,7 @@
                       <p v-if="node.label !='新建文件夹'">
                        {{ node.label }}
                       </p>
-                      <p v-else><el-input size="mini" v-focus @blur="copyfolderChange(data)" v-model="copyfolderName" placeholder="请输入内容"></el-input></p>
+                      <p v-else><el-input size="mini" v-focus @change="copyfolderChange(data)" v-model="copyfolderName" placeholder="请输入内容"></el-input></p>
                     </div>
                   </div>
                 </el-tree>
@@ -161,7 +162,7 @@
                 <img v-else src="../../assets/other-icon.png">
               <p v-if="listItem.name !='新建文件夹'">
               <span>{{ listItem.name }}</span>
-                <el-input v-show="false" size="mini" v-focus @blur="renameChange(listItem,$event)" v-model="listItem.name" placeholder="请输入内容"></el-input>
+                <el-input v-show="false" size="mini" v-focus @change="renameChange(listItem,$event)" v-model="listItem.name" placeholder="请输入内容"></el-input>
               </p>
               <p v-else><el-input size="mini" v-focus @change="folderChange" v-model="folderName" placeholder="请输入内容"></el-input></p>
             </li>
@@ -186,12 +187,13 @@
                   <div class="file-list-name" :data-id="scope.row.id" :data-type="scope.row.type" :data-size="scope.row.size">
                     <img v-if="suffixFun(scope.row.suffix)" :src="suffixFun(scope.row.suffix)">
                     <img v-else src="../../assets/other-icon.png">
-                   <p v-if="scope.row.name !='新建文件夹'">
-                    <router-link v-if="scope.row.type == 1" class="file-name" :to="{path:'/folder/file',query:{'originId':scope.row.id,'names':scope.row.name}}">{{ scope.row.name }}</router-link>
-                     <a v-else class="file-name">{{ scope.row.name }}</a>
-                      <el-input v-show="false" size="mini" v-focus @blur="renameChange(scope.row,$event)" v-model="scope.row.name" placeholder="请输入内容"></el-input>
+                    <p v-if="scope.row.name !='新建文件夹'">
+                      <!-- {path:'/folder/file',query:{'originId':scope.row.id,'names':scope.row.name}} -->
+                      <a v-if="scope.row.type == 1" class="file-name">{{ scope.row.name }}</a>
+                      <a v-else class="file-name">{{ scope.row.name }}</a>
+                      <el-input v-show="false" size="mini" v-focus @change="renameChange(scope.row,$event)" v-model="scope.row.name" placeholder="请输入内容"></el-input>
                     </p>
-                    <p v-else><el-input size="mini" v-focus @blur="folderChange" v-model="folderName" placeholder="请输入内容"></el-input></p>
+                    <p v-else><el-input size="mini" v-focus @change="folderChange" v-model="folderName" placeholder="请输入内容"></el-input></p>
                   </div>
                 </template>
               </el-table-column>
@@ -318,13 +320,14 @@
         </div>
       </el-drawer>
   </div>
+  <record class="secordNoe"></record>
+  </div>
 </template>
 
 <script>
 import $ from 'jquery'
 //  eslint-disable-next-line
 import { formatSize, formatDateTime } from '@/utils'
-import { getAction } from '../../apis/file.js'
 //  eslint-disable-next-line
 import axios from 'axios'
 //  eslint-disable-next-line
@@ -332,6 +335,7 @@ var CancelToken = axios.CancelToken;
 //  eslint-disable-next-line
 window.source = CancelToken.source();
 window.cancels = {}
+import Record from '@/views/file/record'
 //  eslint-disable-next-line
 import {
   //  eslint-disable-next-line
@@ -369,6 +373,7 @@ import {
 } from '@/apis/api'
 export default {
   name: 'FileList',
+  components: { Record},
   data() {
     return {
       checkList:[],
@@ -376,17 +381,17 @@ export default {
       drawer: false,
       filtertreeText:'',
       copyfilterText:'',
-       filterText: '',
-       jurisfilterText: '',
-       copyFile:true,
-       moveFile:true,
-       deterBtn: true,
-       newlyBtn: true,
-       copydeterBtn: true,
-       source:'',
-       copynewlyBtn: true,
-       jurisdData:[],
-       jurisdProps: {
+      filterText: '',
+      jurisfilterText: '',
+      copyFile:true,
+      moveFile:true,
+      deterBtn: true,
+      newlyBtn: true,
+      copydeterBtn: true,
+      source:'',
+      copynewlyBtn: true,
+      jurisdData:[],
+      jurisdProps: {
           children: 'children',
           label: 'realName'
         },
@@ -542,7 +547,6 @@ export default {
   }
 },
   mounted () {
-    console.log(getAction("http://124.70.51.21:9201/test"))
     this.mergeFn(this.$route.query.originId)
     $(".foot-right").find('img').eq(1).attr('src',this.urlImgselect[1]).siblings().attr('src',this.urlImg[0]);
     this.getHomeCountFileFn()
@@ -760,9 +764,7 @@ export default {
         } else {
           this.$message.error(res.data.message);
         }
-      }).catch((err) => {
-        this.$message.error(err.data.message);
-      });
+      })
     },
     getHomeCountFileFn() {
         getHomeCountFile().then((res) => {
@@ -771,9 +773,7 @@ export default {
           } else {
             this.$message.error(res.data.message);
           }
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+        })
     },
     getTreeListFn() {
       getTreeList().then((res) => {
@@ -783,9 +783,7 @@ export default {
           } else {
             this.$message.error(res.data.message);
           }
-        }).catch((err) => {
-          this.$message.error(err.data.message);
-        });
+        })
     },
     getHomeListFn(rowId) { // 资源下列表
         var listId = { folderId:rowId }
@@ -813,8 +811,15 @@ export default {
     },
     changesFile() { // 权限
       if(this.heckGroupUserId) {
+        if(this.checkList.indexOf('1')>=0 || 
+          this.checkList.indexOf('2')>=0  || 
+          this.checkList.indexOf('3')>=0 ||
+          this.checkList.indexOf('4')>=0 || 
+          this.checkList.indexOf('7')>=0 ) {
+            this.checkList.unshift('0')
+          }
+          this.checkList = this.unique(this.checkList)
           // 0-查看文件 ；1-新建文件夹；2-上传文件；3-下载文件；4-重命名文件；5-移动文件；6-复制文件；7-删除文件
-          
           if(this.checkList.indexOf('2')>0 && this.checkList.indexOf('3')>0 &&this.checkList.indexOf('7')>0 ) {
             this.moveFile = false
             this.copyFile = false
@@ -834,25 +839,25 @@ export default {
               this.checkList.splice(this.checkList.indexOf('6'),1);
             }
           }
-            let folderIds,resourceName;
-            if(this.shiftArr.length>0) {
-              folderIds = this.shiftArr[0].dataId
-              resourceName = this.shiftArr[0].name
-            } else {
-              folderIds = this.ctrlArr[0].dataId
-              resourceName = this.ctrlArr[0].name
-            }
+            // let folderIds,resourceName;
+            // if(this.shiftArr.length>0) {
+            //   folderIds = this.shiftArr[0].dataId
+            //   resourceName = this.shiftArr[0].name
+            // } else {
+            //   folderIds = this.ctrlArr[0].dataId
+            //   resourceName = this.ctrlArr[0].name
+            // }
             
-            setTimeout(()=>{
-              getAlloAuths({
-                folderAuths:this.unique(this.checkList),
-                folderId:folderIds,
-                userIdStr:this.heckGroupUserId,
-                resourceName: resourceName
-              }).then(()=>{
-                this.$message.success("设置成功");
-              })
-            },1000)
+            // setTimeout(()=>{
+            //   getAlloAuths({
+            //     folderAuths:this.unique(this.checkList),
+            //     folderId:folderIds,
+            //     userIdStr:this.heckGroupUserId,
+            //     resourceName: resourceName
+            //   }).then(()=>{
+            //     this.$message.success("设置成功");
+            //   })
+            // },1000)
         } else {
           this.$message.error("请选择成员");
           this.checkList = []
@@ -1104,9 +1109,13 @@ export default {
             $('.current-action').find(".file-list-name p div").hide()
             $('.current-action').find('.file-list-name p a').show()
             $(event.target).parents('li').removeClass('transverseClass');
-            if($(".transverseClass").length<=0 && $(".current-action").length<=0){
+            if($(".transverseClass").length<=0 || $(".current-action").length<=0){
               this.getHomeListFn(this.$route.query.originId)
               this.$message.success(res.data.message);
+              $('.transverseClass').find("p div").hide()
+              $('.transverseClass').find("p span").show()
+              $('.current-action').find(".file-list-name p div").hide()
+              $('.current-action').find('.file-list-name p a').show()
             }
          } else {
             this.$message.error(res.data.message);
@@ -1137,7 +1146,7 @@ export default {
     folderChange(){
       let folderName
       if(this.folderName) { // 修改文件夹名称
-      folderName = this.folderName
+        folderName = this.folderName
       } else {
         folderName = "新建文件夹"
       }
@@ -1281,7 +1290,7 @@ export default {
         if(this.$route.query.originId) {
           if(this.shiftArr.length>0) {
             $('.transverseClass').find("p div").show()
-              $('.transverseClass').find("p span").hide()
+            $('.transverseClass').find("p span").hide()
           } else if(this.ctrlArr.length>0) {
               $('.current-action').find(".file-list-name p div").show()
               $('.current-action').find('.file-list-name p a').hide()
@@ -1326,9 +1335,11 @@ export default {
         $(".file-list").width("62%");
         this.jurisdictionFn();
       } else if(fileInd == 8) { // 操作
-        this.$router.push({
-          path: '/folder/file/record'
-        })
+        $('.secordNoe').css('display','block')
+        $(".file-list").hide()
+        $(".file-all").css('height',0)
+
+        window.eventBus.$emit("recordPrpos",{recordId:true});
       }
     },
     jurisdictionFn() {
@@ -1400,18 +1411,21 @@ export default {
             filesizeArr = this.ctrlArr
           } else {
             this.$message.error('请选择文件');
+            this.downIstrue = true
             return;
           }
           that.filist.filter((item) => {
-            if(item.type !== 1) {
               filesizeArr.map((filistitem) => {
                 if(item.id == filistitem.dataId) {
-                  filistitem.filePath = item.path
+                  if(item.type !== 1) {
+                    filistitem.filePath = item.path
+                  } else {
+                      this.$message.warning('所选文件包括文件夹，只下载文件');
+                      this.downIstrue = true
+                      return;
+                    }
                 }
               })
-            } else {
-              this.$message.warning('所选文件包括文件夹，只下载文件');
-            }
           })
           filesizeArr.map((filistitem) => {
             if(filistitem.dataType !== 1) {
@@ -1426,7 +1440,14 @@ export default {
             newobj[next.dataId] ? ' ' : newobj[next.dataId]  = true && item.push(next)
             return item;
           },[])
-          filesizeArr.map((item)=>{
+
+          window.myjq = [];
+          setTimeout(()=>{
+            window.eventBus.$emit("speeds",'1');
+            console.log('下载')
+          },100)
+          setTimeout(()=>{
+            filesizeArr.map((item)=>{
             if(item.dataType !== 1) {
               if(item.dataSize > 2048000) {
                   let allFileData = [];
@@ -1499,47 +1520,74 @@ export default {
                     }
                     let j = i
                     allFileData = [];
-                  axios({
-                        url: '/resource/bigfile/download/do',
-                        params: {filePath :item.filePath},
-                        method:'get',
-                        headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
-                        responseType: 'blob',
-                        // cancelToken: window.source.token
-                      //  cancelToken: new CancelToken(function executor(c){
-                      //     window.cancels.tokens = c
-                      //   })
-                      }).then((res)=>{
-                      allFileData.push({
-                        data:res.data,
-                        ind:j
-                      })
-                        window.eventBus.$emit("realProgress",{
-                          totalPieces:totalPieces,
-                          filesize:item.dataSize,
-                          bytesPerPiece:bytesPerPiece,
-                          fileId:item.dataId,
-                          total:j,
-                          bytesStas:bytesStas,
-                          bytesEnd:bytesEnd,
-                          allFileData:allFileData,
-                          name:item.name
-                        });
-                      if(allFileData.length == totalPieces) {
-                        window.eventBus.$emit("decreased", {
-                            totalPieces:totalPieces,
-                            bytesPerPiece:bytesPerPiece,
-                            filesize:item.dataSize,
-                            allFileData:allFileData,
-                            fileDownloadId:item.fileDownloadId,
-                            fileId: item.dataId,
-                            name:item.name
-                        });
-                        setTimeout(()=>{
-                          that.downIstrue =true
-                        },500)
-                      }
-                    })
+                    // inds
+                      let myjqind = $.ajax({
+                          url: '/resource/bigfile/download/do',
+                          headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
+                          data:{filePath :item.filePath},
+                          responseType: 'blob',
+                          success:function(res){
+                            allFileData.push({
+                              data:res.data,
+                              ind:j
+                            })
+                            window.eventBus.$emit("realProgress",{
+                              totalPieces:totalPieces,
+                              filesize:item.dataSize,
+                              bytesPerPiece:bytesPerPiece,
+                              fileId:item.dataId,
+                              total:j,
+                              bytesStas:bytesStas,
+                              bytesEnd:bytesEnd,
+                              name:item.name
+                            });
+                            if(allFileData.length == totalPieces) {
+                              window.eventBus.$emit("decreased", {
+                                  totalPieces:totalPieces,
+                                  bytesPerPiece:bytesPerPiece,
+                                  filesize:item.dataSize,
+                                  allFileData:allFileData,
+                                  fileDownloadId:item.fileDownloadId,
+                                  fileId: item.dataId,
+                                  name:item.name
+                              });
+                              setTimeout(()=>{
+                                that.downIstrue =true
+                              },500)
+                            }
+                          },
+                        })
+                        window.myjq.push(myjqind)
+                        // axios({
+                  //       url: '/resource/bigfile/download/do',
+                  //       params: {filePath :item.filePath},
+                  //       method:'get',
+                  //       headers: {'Range':'bytes='+bytesStas+'-'+bytesEnd},
+                  //       responseType: 'blob',
+                  //       // cancelToken: window.source.token
+                  //     //  cancelToken: new CancelToken(function executor(c){
+                  //     //     window.cancels.tokens = c
+                  //     //   })
+                  //     }).then((res)=>{
+                  //     allFileData.push({
+                  //       data:res.data,
+                  //       ind:j
+                  //     })
+                  //     if(allFileData.length == totalPieces) {
+                  //       window.eventBus.$emit("decreased", {
+                  //           totalPieces:totalPieces,
+                  //           bytesPerPiece:bytesPerPiece,
+                  //           filesize:item.dataSize,
+                  //           allFileData:allFileData,
+                  //           fileDownloadId:item.fileDownloadId,
+                  //           fileId: item.dataId,
+                  //           name:item.name
+                  //       });
+                  //       setTimeout(()=>{
+                  //         that.downIstrue =true
+                  //       },500)
+                  //     }
+                  //   })
                   }
               
               } else {
@@ -1561,6 +1609,7 @@ export default {
               }
             }
           })
+          },280)
       }
     },
     transverseClick(columns,event,enebtnd) {
@@ -1884,6 +1933,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .secordNoe{
+    display: none;
+  }
 .file-all{
   height: 98%;
   display: flex;

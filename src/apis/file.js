@@ -6,7 +6,7 @@ import qs from 'qs';
 
 //设置全局的请求次数，请求的间隙
 axios.defaults.retry = 3;
-axios.defaults.retryDelay = 5000;
+axios.defaults.retryDelay = 50000;
 
 axios.interceptors.request.use(function (config) {
   let token = Vue.$cookies.get('token')
