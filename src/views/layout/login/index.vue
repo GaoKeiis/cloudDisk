@@ -59,7 +59,6 @@ export default {
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            // 17346578001 123456
       // http://192.168.10.48:9001 本地
       // http://123.57.102.27:8999 线上
             postAction(

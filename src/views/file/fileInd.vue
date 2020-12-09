@@ -839,25 +839,25 @@ export default {
               this.checkList.splice(this.checkList.indexOf('6'),1);
             }
           }
-            // let folderIds,resourceName;
-            // if(this.shiftArr.length>0) {
-            //   folderIds = this.shiftArr[0].dataId
-            //   resourceName = this.shiftArr[0].name
-            // } else {
-            //   folderIds = this.ctrlArr[0].dataId
-            //   resourceName = this.ctrlArr[0].name
-            // }
+            let folderIds,resourceName;
+            if(this.shiftArr.length>0) {
+              folderIds = this.shiftArr[0].dataId
+              resourceName = this.shiftArr[0].name
+            } else {
+              folderIds = this.ctrlArr[0].dataId
+              resourceName = this.ctrlArr[0].name
+            }
             
-            // setTimeout(()=>{
-            //   getAlloAuths({
-            //     folderAuths:this.unique(this.checkList),
-            //     folderId:folderIds,
-            //     userIdStr:this.heckGroupUserId,
-            //     resourceName: resourceName
-            //   }).then(()=>{
-            //     this.$message.success("设置成功");
-            //   })
-            // },1000)
+            setTimeout(()=>{
+              getAlloAuths({
+                folderAuths:this.unique(this.checkList),
+                folderId:folderIds,
+                userIdStr:this.heckGroupUserId,
+                resourceName: resourceName
+              }).then(()=>{
+                this.$message.success("设置成功");
+              })
+            },1000)
         } else {
           this.$message.error("请选择成员");
           this.checkList = []
