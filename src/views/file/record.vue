@@ -24,8 +24,7 @@
               <img v-else src="../../assets/person-icon.png">
               <p>
                 {{ scope.row.userName }}
-                <span>
-                {{ scope.row.position }}</span>
+                <!-- <span v-for='(rolesItem,ind) in scope.row.roles' :key="ind">{{ rolesItem }}</span> -->
               </p>
             </div>
           </template>
@@ -46,6 +45,12 @@
               </el-input>
             </div>
           </template>
+          <template slot-scope="scope">
+            <div class="operator-name">
+              {{scope.row.content}}
+              <span v-if='scope.row.errorMsg'>（{{scope.row.errorMsg}}）</span>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           label="操作时间"
@@ -59,9 +64,8 @@
 
 <script>
 import $ from 'jquery'
-import { getResourceLog } from '@/apis/api'
+import { getResourceLog,getSelectUser } from '@/apis/api'
   export default {
-    props: ['recordId'],
     data() {
       return {
         opensearch: '',
@@ -72,6 +76,10 @@ import { getResourceLog } from '@/apis/api'
       }
     },
     mounted() {
+      if($(".file-list").css('display') == 'none') {
+        $(".file-record").css('display','block')
+        this.resource()
+      }
       window.eventBus.$on("recordPrpos",(record)=>{
         if(record.recordId) {
           this.resource()
@@ -92,12 +100,29 @@ import { getResourceLog } from '@/apis/api'
       resource() {
         getResourceLog().then((res)=>{
             if(res.data.code == 200) {
-              this.tableData = res.data.data;
-              this.pictLoading = false
+              // this.selectUserFn(res.data.data)
+              this.tableData = res.data.data
+              this.pictLoading = false;
             } else {
               this.$message.error(res.data.message);
             }
           })
+      },
+      selectUserFn(data) {
+        data.map((item)=>{
+          if(item.userIdStr) {
+            getSelectUser({userIdStr:item.userIdStr}).then((res)=>{
+              if(res.data.code == 200) {
+                item.person = res.data.data.realName
+                item.imgUrl = res.data.data.bigImgUrl
+                item.roles = res.data.data.roles
+                item.sex = res.data.data.sex
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+          }
+        })
       },
       recordoff() {
         $('.secordNoe').hide();

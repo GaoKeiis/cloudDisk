@@ -62,17 +62,21 @@ export default {
               urlPath:'/folder/file'
             })
             $(".file-all").parent('div').css('height','100%')
+                  $(".file-all").css('height','98%')
             this.$nextTick(()=>{
               if($('.navbar-menu').find($(".is-active p")).text() == "进度") {
                 $('.navbar-menu').find("li").eq(1).addClass('is-active').siblings().removeClass("is-active")
                 $(".file-all").hide()
                 $(".speed").show()
                 $(".file-all").parent('div').css('height',0)
+                $(".file-record").css('display','none')
               } else{
-                $(".file-all").parent('div').css('height','100%')
-                $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
-                $(".file-all").show()
-                $(".speed").hide()
+                  $('.navbar-menu').find("li").eq(0).addClass('is-active').siblings().removeClass("is-active")
+                  $(".file-all").show()
+                  $(".speed").hide()
+                  $(".file-all").css('height','98%')
+                  $(".file-all").parent('div').css('height','100%') 
+                  $(".file-record").css('display','none')
               }
             })
         } else {
@@ -121,13 +125,16 @@ export default {
         $(".file-all").hide()
         $(".file-all").parent('div').css('height',0)
         $(".speed").show()
+        $(".file-record").css('display','none')
       }
       if($('.navbar-menu').find($(".is-active p")).text() == '文件') {
-        $(".file-all").parent('div').css('height','100%')
         $(".file-all").show()
         $(".speed").hide()
         $('.secordNoe').hide();
         $('.file-list').css('display','flex');
+        $(".file-all").css('height','98%')
+        $(".file-all").parent('div').css('height','100%')
+        $(".file-record").css('display','none')
       }
     }
   }
